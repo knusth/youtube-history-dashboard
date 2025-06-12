@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube History Analyzer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { 
+            margin: 0; 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background-color: #f9fafb;
+        }
+        .file-input { display: none; }
+        .file-label {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #3b82f6;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        .file-label:hover { background: #2563eb; }
+        
+        .chart-bar {
+            background: linear-gradient(to top, #3b82f6, #60a5fa);
+            border-radius: 4px 4px 0 0;
+            transition: all 0.3s ease;
+            position: relative;
+            cursor: pointer;
+        }
+        .chart-bar:hover {
+            transform: scaleY(1.05);
+            filter: brightness(1.1);
+        }
+        .chart-container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 4px;
+            height: 200px;
+            padding: 20px;
+            border-radius: 8px;
+            background: #f8fafc;
+            overflow-x: auto;
+            min-width: 100%;
+        }
+        .chart-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 30px;
+            max-width: 60px;
+            flex: 1;
+        }
+        .chart-label {
+            font-size: 10px;
+            margin-top: 8px;
+            text-align: center;
+            color: #6b7280;
+            word-break: break-all;
+            line-height: 1.2;
+        }
+        .word-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
+            padding: 20px;
+        }
+        .word-cloud span {
+            display: inline-block;
+            margin: 2px;
+            padding: 4px 8px;
+            border-radius: 16px;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .word-cloud span:hover {
+            transform: scale(1.1);
+        }
+        .stat-card {
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid;
+        }
+        .stat-card-blue {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            border-color: #93c5fd;
+        }
+        .stat-card-green {
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+            border-color: #86efac;
+        }
+        .stat-card-purple {
+            background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
+            border-color: #c4b5fd;
+        }
+        .stat-card-orange {
+            background: linear-gradient(135deg, #fed7aa, #fdba74);
+            border-color: #fb923c;
+        }
+        .stat-icon {
+            width: 24px;
+            height: 24px;
+            font-size: 20px;
+            display: inline-block;
+        }
+        .stat-title {
+            font-weight: 600;
+            color: #374151;
+            margin-left: 12px;
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin: 8px 0;
+        }
+        .stat-value-blue { color: #1d4ed8; }
+        .stat-value-green { color: #059669; }
+        .stat-value-purple { color: #7c3aed; }
+        .stat-value-orange { color: #ea580c; }
+        .stat-subtitle {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        .section-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 24px;
+        }
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #111827;
+        }
+        .nav-container {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            background: #f3f4f6;
+            padding: 4px;
+            border-radius: 8px;
+        }
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .nav-btn-active {
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            color: #2563eb;
+        }
+        .nav-btn-inactive {
+            color: #6b7280;
+        }
+        .nav-btn-inactive:hover {
+            color: #374151;
+        }
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        .space-y-6 > * + * {
+            margin-top: 24px;
+        }
+        .processing-spinner {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #3b82f6;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 8px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .upload-instructions {
+            background: #dbeafe;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid #93c5fd;
+            text-align: left;
+            margin-bottom: 16px;
+        }
+        .upload-instructions h3 {
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 8px;
+        }
+        .upload-instructions ol {
+            color: #1d4ed8;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .upload-instructions a {
+            text-decoration: underline;
+        }
+        .channel-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+        }
+        .channel-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .channel-item:last-child {
+            border-bottom: none;
+        }
+        .channel-name {
+            font-weight: 500;
+            color: #374151;
+        }
+        .channel-count {
+            color: #6b7280;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div id="root">
+        <div class="container">
+            <div style="margin-bottom: 32px;">
+                <h1 style="font-size: 30px; font-weight: 700; color: #111827; margin-bottom: 8px;">YouTube Watch History Analysis</h1>
+                <p style="color: #6b7280; font-size: 16px;" id="subtitle">Upload your YouTube history JSON to get started</p>
+                
+                <!-- Filter Controls -->
+                <div id="filter-controls" style="display: none; margin-top: 16px; padding: 16px; background: #f8fafc; border-radius: 8px; border: 1px solid #e5e7eb;">
+                    <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                        <span style="font-weight: 600; color: #374151;">Filter by:</span>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="filter-youtube" checked style="accent-color: #3b82f6;">
+                            <span style="color: #374151;">YouTube Videos</span>
+                            <span id="youtube-count" style="color: #6b7280; font-size: 14px;">(0)</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="filter-youtube-music" checked style="accent-color: #3b82f6;">
+                            <span style="color: #374151;">YouTube Music</span>
+                            <span id="youtube-music-count" style="color: #6b7280; font-size: 14px;">(0)</span>
+                        </label>
+                        <button onclick="applyFilters()" style="padding: 8px 16px; background: #3b82f6; color: white; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 500;">
+                            Apply Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="nav-container" id="navigation">
+                <button onclick="showTab('upload')" class="nav-btn nav-btn-active" data-tab="upload">
+                    📁 Upload File
+                </button>
+                <button onclick="showTab('overview')" class="nav-btn nav-btn-inactive" data-tab="overview">
+                    📊 Overview
+                </button>
+                <button onclick="showTab('time')" class="nav-btn nav-btn-inactive" data-tab="time">
+                    🕐 Time Patterns
+                </button>
+                <button onclick="showTab('content')" class="nav-btn nav-btn-inactive" data-tab="content">
+                    📝 Content Analysis
+                </button>
+                <button onclick="showTab('channels')" class="nav-btn nav-btn-inactive" data-tab="channels">
+                    📺 Channels
+                </button>
+            </div>
+
+            <!-- Upload Tab -->
+            <div id="upload-tab" class="tab-content section-card" style="text-align: center;">
+                <h2 class="section-title">Upload Your YouTube History</h2>
+                <div style="max-width: 600px; margin: 0 auto;">
+                    <div class="upload-instructions">
+                        <h3>How to get your YouTube history:</h3>
+                        <ol style="list-style: decimal; padding-left: 20px; margin: 0;">
+                            <li>Go to <a href="https://takeout.google.com/" target="_blank">Google Takeout</a></li>
+                            <li>Select "YouTube and YouTube Music"</li>
+                            <li>Choose "history" and download as JSON format</li>
+                            <li>Extract and upload the "watch-history.json" file</li>
+                        </ol>
+                    </div>
+                    <input type="file" accept=".json" class="file-input" id="json-upload">
+                    <label for="json-upload" class="file-label" id="file-label">Choose JSON File</label>
+                    <p style="font-size: 14px; color: #6b7280; margin-top: 8px;" id="filename"></p>
+                    <div id="processing" style="display: none; margin-top: 16px; padding: 16px; background: #f9fafb; border-radius: 8px;">
+                        <div class="processing-spinner"></div>
+                        <p style="margin: 0; color: #6b7280;">Processing your YouTube history...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Overview Tab -->
+            <div id="overview-tab" class="tab-content" style="display: none;">
+                <div class="space-y-6">
+                    <!-- Stats Cards -->
+                    <div class="grid-4" id="stats-cards">
+                        <!-- Cards will be populated by JavaScript -->
+                    </div>
+                    
+                    <!-- Monthly Trend -->
+                    <div class="section-card">
+                        <h2 class="section-title">Monthly Activity Trend</h2>
+                        <div class="chart-container" id="monthly-chart">
+                            <!-- Chart will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Time Patterns Tab -->
+            <div id="time-tab" class="tab-content" style="display: none;">
+                <div class="space-y-6">
+                    <div class="section-card">
+                        <h2 class="section-title">Viewing Activity by Hour</h2>
+                        <div class="chart-container" id="hourly-chart"></div>
+                    </div>
+                    
+                    <div class="section-card">
+                        <h2 class="section-title">Viewing Activity by Day of Week</h2>
+                        <div class="chart-container" id="daily-chart"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Analysis Tab -->
+            <div id="content-tab" class="tab-content" style="display: none;">
+                <div class="space-y-6">
+                    <div class="section-card">
+                        <h2 class="section-title">Most Common Words in Video Titles</h2>
+                        <div class="chart-container" id="words-chart"></div>
+                    </div>
+                    
+                    <div class="section-card">
+                        <h2 class="section-title">Word Cloud</h2>
+                        <div class="word-cloud" id="word-cloud">
+                            <!-- Word cloud will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Channels Tab -->
+            <div id="channels-tab" class="tab-content" style="display: none;">
+                <div class="space-y-6">
+                    <div class="section-card">
+                        <h2 class="section-title">Top Channels by Views</h2>
+                        <div class="chart-container" id="channels-chart"></div>
+                    </div>
+                    
+                    <div class="section-card">
+                        <h2 class="section-title">All Channels</h2>
+                        <div class="channel-list" id="channel-list">
+                            <!-- Channel list will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let analysisData = null;
+        let rawHistoryData = null;
+        let currentFilters = {
+            youtube: true,
+            youtubeMusic: true
+        };
+        const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#84cc16', '#f97316'];
+
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            
+            // Remove active class from all nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = 'nav-btn nav-btn-inactive';
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').style.display = 'block';
+            
+            // Add active class to selected nav button
+            document.querySelector(`[data-tab="${tabName}"]`).className = 'nav-btn nav-btn-active';
+        }
+
+        function applyFilters() {
+            currentFilters.youtube = document.getElementById('filter-youtube').checked;
+            currentFilters.youtubeMusic = document.getElementById('filter-youtube-music').checked;
+            
+            if (!currentFilters.youtube && !currentFilters.youtubeMusic) {
+                alert('Please select at least one filter option.');
+                return;
+            }
+            
+            // Filter the raw data and re-analyze
+            const filteredData = rawHistoryData.filter(item => {
+                if (currentFilters.youtube && item.source === 'YouTube') return true;
+                if (currentFilters.youtubeMusic && item.source === 'YouTube Music') return true;
+                return false;
+            });
+            
+            analysisData = analyzeData(filteredData);
+            updateUI();
+        }
+
+        // File upload handling
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('json-upload').addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                document.getElementById('filename').textContent = `Selected: ${file.name}`;
+                document.getElementById('filename').style.display = 'block';
+                document.getElementById('processing').style.display = 'block';
+                document.getElementById('file-label').textContent = 'Processing...';
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const jsonContent = e.target.result;
+                        const jsonData = JSON.parse(jsonContent);
+                        const processedData = processJsonData(jsonData);
+                        rawHistoryData = processedData.rawData;
+                        analysisData = processedData.analysisData;
+                        
+                        // Update filter counts
+                        updateFilterCounts();
+                        
+                        // Show filter controls
+                        document.getElementById('filter-controls').style.display = 'block';
+                        
+                        updateUI();
+                        showTab('overview');
+                    } catch (error) {
+                        console.error('Error processing file:', error);
+                        alert('Error processing file. Please make sure it\'s a valid YouTube history JSON.');
+                    } finally {
+                        document.getElementById('processing').style.display = 'none';
+                        document.getElementById('file-label').textContent = 'Choose JSON File';
+                    }
+                };
+                reader.readAsText(file);
+            });
+            
+            // Initialize the UI
+            showTab('upload');
+        });
+
+        function updateFilterCounts() {
+            const youtubeCounts = rawHistoryData.filter(item => item.source === 'YouTube').length;
+            const youtubeMusicCounts = rawHistoryData.filter(item => item.source === 'YouTube Music').length;
+            
+            document.getElementById('youtube-count').textContent = `(${youtubeCounts.toLocaleString()})`;
+            document.getElementById('youtube-music-count').textContent = `(${youtubeMusicCounts.toLocaleString()})`;
+        }
+
+        function processJsonData(jsonData) {
+            // Handle both array format and object with array property
+            let historyItems = Array.isArray(jsonData) ? jsonData : (jsonData.history || jsonData);
+            
+            if (!Array.isArray(historyItems)) {
+                throw new Error('Invalid JSON format - expected array of history items');
+            }
+
+            const parsedData = [];
+            
+            historyItems.forEach(item => {
+                // Handle the specific JSON structure from YouTube takeout
+                const title = item.title || '';
+                const timeStr = item.time || '';
+                const url = item.titleUrl || '';
+                const channelName = item.subtitles?.[0]?.name || 'Unknown Channel';
+                const header = item.header || 'YouTube'; // Default to YouTube if no header
+                
+                if (!title || !timeStr) return;
+                
+                // Parse the time - should be ISO format
+                const time = new Date(timeStr);
+                if (isNaN(time.getTime())) return;
+                
+                // Clean up title - remove "Watched " prefix if present
+                let cleanTitle = title.replace(/^(Watched|Viewed)\s+/, '');
+                
+                // Extract video ID from URL if available
+                let videoId = '';
+                if (url) {
+                    const match = url.match(/[?&]v=([^&]+)/);
+                    videoId = match ? match[1] : '';
+                }
+                
+                // Determine source based on header
+                const source = header === 'YouTube Music' ? 'YouTube Music' : 'YouTube';
+                
+                parsedData.push({
+                    title: cleanTitle,
+                    time,
+                    hour: time.getHours(),
+                    dayOfWeek: time.getDay(),
+                    month: `${time.getFullYear()}-${String(time.getMonth() + 1).padStart(2, '0')}`,
+                    date: time.toDateString(),
+                    url,
+                    videoId,
+                    channelName,
+                    source,
+                    originalHeader: header
+                });
+            });
+            
+            return {
+                rawData: parsedData,
+                analysisData: analyzeData(parsedData)
+            };
+        }
+
+        function analyzeData(rawData) {
+            const total = rawData.length;
+            if (total === 0) return null;
+
+            const timestamps = rawData.map(r => r.time.getTime());
+            const oldestTime = Math.min(...timestamps);
+            const newestTime = Math.max(...timestamps);
+            const daysDiff = Math.max(1, Math.ceil((newestTime - oldestTime) / (1000 * 60 * 60 * 24)));
+
+            const groupBy = (array, keyFn) => {
+                return array.reduce((groups, item) => {
+                    const key = keyFn(item);
+                    if (!groups[key]) groups[key] = [];
+                    groups[key].push(item);
+                    return groups;
+                }, {});
+            };
+
+            // Hourly analysis
+            const hourlyGroups = groupBy(rawData, r => r.hour);
+            const hourlyData = Array(24).fill(0).map((_, hour) => ({
+                hour: `${hour}:00`,
+                count: hourlyGroups[hour]?.length || 0
+            }));
+
+            // Daily analysis
+            const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const dailyGroups = groupBy(rawData, r => r.dayOfWeek);
+            const dailyData = Array(7).fill(0).map((_, day) => ({
+                day: dayNames[day],
+                count: dailyGroups[day]?.length || 0
+            }));
+
+            // Monthly analysis
+            const monthlyGroups = groupBy(rawData, r => r.month);
+            const monthlyData = Object.entries(monthlyGroups)
+                .map(([month, videos]) => ({
+                    month,
+                    count: videos.length
+                }))
+                .sort((a, b) => a.month.localeCompare(b.month));
+
+            // Channel analysis
+            const channelGroups = groupBy(rawData.filter(r => r.channelName !== 'Unknown Channel'), r => r.channelName);
+            const channelData = Object.entries(channelGroups)
+                .map(([channel, videos]) => ({
+                    channel,
+                    count: videos.length
+                }))
+                .sort((a, b) => b.count - a.count);
+
+            // Count unique channels
+            const uniqueChannels = new Set(rawData.map(r => r.channelName)).size;
+
+            // Word analysis
+            const cleanTitles = rawData
+                .map(r => {
+                    let title = r.title;
+                    title = title.replace(/https?:\/\/[^\s]+/g, '');
+                    title = title.replace(/www\.[^\s]+/g, '');
+                    title = title.replace(/\b(youtube|watch|video)\b/gi, '');
+                    return title;
+                })
+                .filter(title => title.trim().length > 0);
+
+            const allWords = cleanTitles
+                .flatMap(title => title.toLowerCase().replace(/[^\w\s]/g, ' ').split(/\s+/))
+                .filter(word => word.length > 2);
+
+            const stopWords = new Set([
+                'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had', 'her', 'was', 'one', 'our', 'out',
+                'day', 'get', 'has', 'him', 'his', 'how', 'man', 'new', 'now', 'old', 'see', 'two', 'way', 'who', 'with',
+                'this', 'that', 'will', 'from', 'they', 'know', 'want', 'been', 'good', 'much', 'some', 'time', 'very',
+                'when', 'come', 'here', 'just', 'like', 'long', 'make', 'many', 'over', 'such', 'take', 'than', 'them',
+                'well', 'were', 'what', 'your', 'have', 'there', 'would', 'could', 'should', 'about', 'after', 'again',
+                'www', 'com', 'org', 'net', 'https', 'http', 'youtube', 'watch', 'video', 'viewed', 'official',
+                'part', 'episode', 'vol', 'live', 'full', 'hd', 'ft', 'feat'
+            ]);
+
+            const wordCounts = {};
+            allWords.forEach(word => {
+                if (!stopWords.has(word) && /^[a-zA-Z]+$/.test(word) && word.length > 2) {
+                    wordCounts[word] = (wordCounts[word] || 0) + 1;
+                }
+            });
+
+            const topWords = Object.entries(wordCounts)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 30)
+                .map(([word, count]) => ({
+                    word: word.charAt(0).toUpperCase() + word.slice(1),
+                    count
+                }));
+
+            return {
+                total,
+                uniqueChannels,
+                dateRange: {
+                    oldest: new Date(oldestTime),
+                    newest: new Date(newestTime),
+                    days: daysDiff
+                },
+                avgPerDay: (total / daysDiff).toFixed(1),
+                hourlyData,
+                dailyData,
+                monthlyData,
+                topWords,
+                channelData,
+                sourceBreakdown: {
+                    youtube: rawData.filter(r => r.source === 'YouTube').length,
+                    youtubeMusic: rawData.filter(r => r.source === 'YouTube Music').length
+                }
+            };
+        }
+
+        function updateUI() {
+            if (!analysisData) return;
+
+            // Update subtitle with filter information
+            let filterText = '';
+            if (currentFilters.youtube && currentFilters.youtubeMusic) {
+                filterText = 'YouTube & YouTube Music';
+            } else if (currentFilters.youtube) {
+                filterText = 'YouTube only';
+            } else if (currentFilters.youtubeMusic) {
+                filterText = 'YouTube Music only';
+            }
+            
+            document.getElementById('subtitle').textContent = 
+                `Insights from your ${analysisData.total.toLocaleString()} watched videos across ${analysisData.uniqueChannels} channels (${filterText})`;
+
+            // Update stats cards
+            const statsContainer = document.getElementById('stats-cards');
+            const peakHour = analysisData.hourlyData.reduce((max, curr) => curr.count > max.count ? curr : max);
+            const mostActiveDay = analysisData.dailyData.reduce((max, curr) => curr.count > max.count ? curr : max);
+            const topChannel = analysisData.channelData[0] || { channel: 'N/A', count: 0 };
+            
+            // Create source breakdown card
+            const sourceCard = analysisData.sourceBreakdown ? `
+                <div class="stat-card stat-card-purple">
+                    <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                        <span class="stat-icon">🎵</span>
+                        <h3 class="stat-title">Source Split</h3>
+                    </div>
+                    <div class="stat-value stat-value-purple" style="font-size: 16px; line-height: 1.3;">
+                        YouTube: ${analysisData.sourceBreakdown.youtube.toLocaleString()}<br>
+                        Music: ${analysisData.sourceBreakdown.youtubeMusic.toLocaleString()}
+                    </div>
+                    <div class="stat-subtitle">${Math.round((analysisData.sourceBreakdown.youtube / analysisData.total) * 100)}% / ${Math.round((analysisData.sourceBreakdown.youtubeMusic / analysisData.total) * 100)}%</div>
+                </div>
+            ` : `
+                <div class="stat-card stat-card-purple">
+                    <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                        <span class="stat-icon">🕐</span>
+                        <h3 class="stat-title">Peak Hour</h3>
+                    </div>
+                    <div class="stat-value stat-value-purple">${peakHour.hour}</div>
+                    <div class="stat-subtitle">${peakHour.count} videos</div>
+                </div>
+            `;
+            
+            statsContainer.innerHTML = `
+                <div class="stat-card stat-card-blue">
+                    <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                        <span class="stat-icon">📹</span>
+                        <h3 class="stat-title">Total Videos</h3>
+                    </div>
+                    <div class="stat-value stat-value-blue">${analysisData.total.toLocaleString()}</div>
+                    <div class="stat-subtitle">Over ${analysisData.dateRange.days} days</div>
+                </div>
+                <div class="stat-card stat-card-green">
+                    <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                        <span class="stat-icon">📅</span>
+                        <h3 class="stat-title">Average Per Day</h3>
+                    </div>
+                    <div class="stat-value stat-value-green">${analysisData.avgPerDay}</div>
+                    <div class="stat-subtitle">videos daily</div>
+                </div>
+                ${sourceCard}
+                <div class="stat-card stat-card-orange">
+                    <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                        <span class="stat-icon">📺</span>
+                        <h3 class="stat-title">Top Channel</h3>
+                    </div>
+                    <div class="stat-value stat-value-orange" style="font-size: 18px; line-height: 1.2;">${topChannel.channel}</div>
+                    <div class="stat-subtitle">${topChannel.count} videos</div>
+                </div>
+            `;
+
+            // Update charts
+            updateChart('monthly-chart', analysisData.monthlyData, 'month', 'count');
+            updateChart('hourly-chart', analysisData.hourlyData, 'hour', 'count');
+            updateChart('daily-chart', analysisData.dailyData, 'day', 'count');
+            updateChart('words-chart', analysisData.topWords.slice(0, 15), 'word', 'count');
+            updateChart('channels-chart', analysisData.channelData.slice(0, 15), 'channel', 'count');
+            updateWordCloud();
+            updateChannelList();
+        }
+
+        function updateChart(containerId, data, xKey, yKey) {
+            const container = document.getElementById(containerId);
+            if (!data || data.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #6b7280;">No data available</p>';
+                return;
+            }
+
+            const maxValue = Math.max(...data.map(d => d[yKey]));
+            
+            container.innerHTML = data.map((item, index) => {
+                const height = Math.max(2, (item[yKey] / maxValue) * 160);
+                const color = colors[index % colors.length];
+                
+                return `
+                    <div class="chart-item">
+                        <div class="chart-bar" 
+                             style="height: ${height}px; background: ${color}; width: 100%;"
+                             title="${item[xKey]}: ${item[yKey]}">
+                        </div>
+                        <div class="chart-label">
+                            ${item[xKey].length > 15 ? item[xKey].substring(0, 12) + '...' : item[xKey]}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateWordCloud() {
+            const container = document.getElementById('word-cloud');
+            if (!analysisData.topWords || analysisData.topWords.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #6b7280;">No word data available</p>';
+                return;
+            }
+
+            const maxCount = Math.max(...analysisData.topWords.map(w => w.count));
+            
+            container.innerHTML = analysisData.topWords.slice(0, 30).map((wordData, index) => {
+                const minSize = 12;
+                const maxSize = 36;
+                const fontSize = minSize + (wordData.count / maxCount) * (maxSize - minSize);
+                const opacity = 0.6 + (wordData.count / maxCount) * 0.4;
+                const color = colors[index % colors.length];
+                
+                return `
+                    <span style="font-size: ${fontSize}px; 
+                                 color: ${color}; 
+                                 opacity: ${opacity};
+                                 font-weight: ${fontSize > 24 ? 'bold' : 'normal'};"
+                          title="${wordData.word}: ${wordData.count} times">
+                        ${wordData.word}
+                    </span>
+                `;
+            }).join('');
+        }
+
+        function updateChannelList() {
+            const container = document.getElementById('channel-list');
+            if (!analysisData.channelData || analysisData.channelData.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 20px;">No channel data available</p>';
+                return;
+            }
+
+            container.innerHTML = analysisData.channelData.map(channelData => `
+                <div class="channel-item">
+                    <div class="channel-name">${channelData.channel}</div>
+                    <div class="channel-count">${channelData.count} videos</div>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
