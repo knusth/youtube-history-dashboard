@@ -58,11 +58,11 @@
         }
         
         .chart-container {
-            height: 350px; 
+            height: 400px; /* Increased height for time series potentially */
             padding: 20px;
             border-radius: 20px;
-            background: rgba(255, 255, 255, 0.92); /* Slightly more opaque */
-            backdrop-filter: blur(12px); /* Increased blur */
+            background: rgba(255, 255, 255, 0.92); 
+            backdrop-filter: blur(12px); 
             box-shadow: var(--soft-shadow);
             min-width: 100%;
             position: relative;
@@ -74,31 +74,53 @@
             box-shadow: var(--hover-shadow);
         }
         
+        /* Default Recharts Tooltip styles - we'll make our custom one similar */
         .recharts-default-tooltip {
-            background: rgba(255, 255, 255, 0.97) !important; /* More opaque */
-            backdrop-filter: blur(8px) !important; /* Reduced blur for performance */
-            border: 1px solid rgba(0, 0, 0, 0.06) !important; /* Softer border */
+            background: rgba(255, 255, 255, 0.97) !important;
+            backdrop-filter: blur(8px) !important;
+            border: 1px solid rgba(0, 0, 0, 0.06) !important;
             border-radius: 12px !important;
             padding: 12px 16px !important;
-            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12) !important; /* Enhanced shadow */
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12) !important;
             font-family: 'Roboto', sans-serif;
         }
         .recharts-tooltip-label {
             color: #374151 !important;
             font-weight: 600 !important;
             margin-bottom: 8px !important;
-            font-size: 15px !important; /* Slightly larger */
+            font-size: 15px !important;
+        }
+        .recharts-tooltip-item-list {
+            padding: 0;
+            margin: 0;
+            list-style: none;
         }
         .recharts-tooltip-item {
-            color: #52525b !important; /* Darker gray for items */
+            color: #52525b !important;
             font-size: 13px !important;
             padding: 4px 0 !important;
+            display: flex !important;
+            justify-content: space-between !important;
+        }
+        .recharts-tooltip-item-name {
+            margin-right: 12px !important; /* Increased space */
+             max-width: 180px; /* Prevent long channel names from breaking layout */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
          .recharts-tooltip-item-value {
             font-weight: 600 !important;
-            color: #1f2937 !important; /* Even darker for value */
-            margin-left: 8px !important;
+            color: #1f2937 !important;
+         }
+        /* Custom styling for our MonthlyChannelTooltip */
+        .monthly-channels-tooltip-list li {
+             border-bottom: 1px dashed rgba(0,0,0,0.05);
         }
+         .monthly-channels-tooltip-list li:last-child {
+            border-bottom: none;
+        }
+
 
         .word-cloud {
             display: flex;
@@ -108,7 +130,7 @@
             align-items: center;
             min-height: 200px;
             padding: 30px;
-            background: rgba(255, 255, 255, 0.8); /* Adjusted opacity */
+            background: rgba(255, 255, 255, 0.8);
             border-radius: 20px;
             backdrop-filter: blur(10px);
             box-shadow: var(--soft-shadow);
@@ -144,22 +166,22 @@
             box-shadow: var(--hover-shadow);
         }
         
-        .stat-card::before { /* Shiny hover effect */
+        .stat-card::before { 
             content: '';
             position: absolute;
-            top: -60%; /* Adjusted for better effect */
+            top: -60%; 
             left: -60%;
             width: 200%;
             height: 200%;
             background: radial-gradient(circle, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0) 65%);
-            transform: rotate(45deg); /* Diagonal shimmer */
+            transform: rotate(45deg); 
             opacity: 0;
             transition: opacity 0.5s ease, transform 0.5s ease;
         }
         
         .stat-card:hover::before {
             opacity: 1;
-            transform: rotate(15deg) scale(1.1); /* Subtle animation */
+            transform: rotate(15deg) scale(1.1); 
         }
         
         .stat-card-pink { background: linear-gradient(135deg, #ffe0e6, #ffc4d0); }
@@ -205,7 +227,7 @@
         }
         
         .section-card {
-            background: rgba(255, 255, 255, 0.9); /* More opaque for readability */
+            background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(12px);
             padding: 32px;
             border-radius: 24px;
@@ -218,7 +240,7 @@
         .section-title {
             font-size: 24px;
             font-weight: 700;
-            margin-bottom: 24px; /* Increased margin */
+            margin-bottom: 24px;
             background: linear-gradient(135deg, #ec4899, #8b5cf6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -228,13 +250,14 @@
         
         .nav-container {
             display: flex;
-            gap: 10px; /* Increased gap */
+            gap: 10px; 
             margin-bottom: 32px;
             background: rgba(255, 255, 255, 0.75);
             backdrop-filter: blur(10px);
-            padding: 10px; /* Increased padding */
+            padding: 10px; 
             border-radius: 16px;
-            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06); /* Softer shadow */
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06); 
+            flex-wrap: wrap; 
         }
         
         .nav-btn {
@@ -246,7 +269,7 @@
             transition: all 0.3s ease;
             cursor: pointer;
             border: none;
-            background: transparent; /* Explicitly transparent */
+            background: transparent; 
             font-size: 14px;
             font-weight: 500;
             color: #6b7280;
@@ -256,11 +279,11 @@
             background: linear-gradient(135deg, var(--pastel-pink), var(--pastel-peach));
             color: #5d3a3a; 
             font-weight: 600;
-            box-shadow: 0 3px 12px rgba(255, 179, 193, 0.45); /* Enhanced shadow */
+            box-shadow: 0 3px 12px rgba(255, 179, 193, 0.45); 
         }
         
         .nav-btn-inactive:hover {
-            background: rgba(255, 255, 255, 0.9); /* Lighter hover */
+            background: rgba(255, 255, 255, 0.9); 
             color: #374151;
         }
         
@@ -273,7 +296,7 @@
         .grid-4 {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
-            gap: 28px; /* Increased gap */
+            gap: 28px; 
             margin-bottom: 32px;
         }
         
@@ -283,7 +306,7 @@
             border: 3px solid var(--pastel-pink);
             border-top: 3px solid transparent;
             border-radius: 50%;
-            animation: spin 0.8s linear infinite; /* Faster spin */
+            animation: spin 0.8s linear infinite; 
             margin: 0 auto 16px;
         }
         
@@ -292,10 +315,10 @@
         }
         
         .upload-instructions {
-            background: linear-gradient(135deg, #fef6f6, #f6f6ff); /* Subtler gradient */
+            background: linear-gradient(135deg, #fef6f6, #f6f6ff); 
             padding: 24px;
             border-radius: 16px;
-            border: 1px solid rgba(255, 179, 193, 0.25); /* Softer border */
+            border: 1px solid rgba(255, 179, 193, 0.25); 
             text-align: left;
             margin-bottom: 24px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
@@ -303,7 +326,7 @@
         
         .upload-instructions h3 {
             font-weight: 600;
-            background: linear-gradient(135deg, #dd2572, #f97316); /* Adjusted gradient */
+            background: linear-gradient(135deg, #dd2572, #f97316); 
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -315,6 +338,9 @@
             color: #52525b;
             font-size: 14px;
             line-height: 1.8;
+            list-style: decimal; 
+            padding-left: 20px; 
+            margin:0;
         }
         
         .upload-instructions a {
@@ -333,9 +359,9 @@
             max-height: 400px;
             overflow-y: auto;
             border-radius: 16px;
-            background: rgba(255, 255, 255, 0.7); /* More opaque */
+            background: rgba(255, 255, 255, 0.7); 
             backdrop-filter: blur(10px);
-            padding: 12px; /* Added padding around list items */
+            padding: 12px;
         }
         
         .channel-item {
@@ -350,48 +376,37 @@
         }
         
         .channel-item:hover {
-            background: linear-gradient(135deg, #fef8f8, #f8f8ff); /* Very subtle hover */
-            transform: translateX(5px) scale(1.01); /* Enhanced hover */
+            background: linear-gradient(135deg, #fef8f8, #f8f8ff); 
+            transform: translateX(5px) scale(1.01); 
             box-shadow: 0 3px 10px rgba(0,0,0,0.07);
         }
         
         .channel-name {
             font-weight: 500;
             color: #374151;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 70%;
         }
         
         .channel-count {
             color: #ec4899;
             font-size: 14px;
             font-weight: 600;
+            flex-shrink: 0;
         }
         
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.2); /* More transparent track */
-            border-radius: 10px;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(135deg, var(--pastel-pink), var(--pastel-peach));
-            border-radius: 10px;
-            border: 2px solid transparent; /* Creates padding around thumb */
-            background-clip: padding-box;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(135deg, #ff9ab0, #ffc49e); /* Slightly darker hover */
-        }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, var(--pastel-pink), var(--pastel-peach)); border-radius: 10px; border: 2px solid transparent; background-clip: padding-box; }
+        ::-webkit-scrollbar-thumb:hover { background: linear-gradient(135deg, #ff9ab0, #ffc49e); }
         
         #filter-controls {
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(10px);
             border-radius: 16px;
-            border: 1px solid rgba(255, 179, 193, 0.15); /* Even softer border */
+            border: 1px solid rgba(255, 179, 193, 0.15); 
             box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
         }
         
@@ -409,17 +424,17 @@
         
         input[type="checkbox"] {
             accent-color: var(--pastel-pink);
-            width: 18px; /* Slightly larger */
+            width: 18px; 
             height: 18px;
             border-radius: 5px; 
-            border: 1.5px solid var(--pastel-coral); /* Thicker border */
+            border: 1.5px solid var(--pastel-coral); 
             cursor: pointer;
-            vertical-align: middle; /* Align better with text */
+            vertical-align: middle; 
         }
-        /* Style for the checkmark itself if needed, though accent-color handles most of it */
         input[type="checkbox"]:checked {
-            background-color: var(--pastel-pink); /* Ensure bg color when checked */
+            background-color: var(--pastel-pink); 
         }
+
 
     </style>
 </head>
@@ -466,6 +481,12 @@
                 <button onclick="showTab('channels')" class="nav-btn nav-btn-inactive" data-tab="channels">
                     📺 Channels
                 </button>
+                <button onclick="showTab('most-watched')" class="nav-btn nav-btn-inactive" data-tab="most-watched">
+                    🎬 Most Watched
+                </button>
+                <button onclick="showTab('monthly-top-channels')" class="nav-btn nav-btn-inactive" data-tab="monthly-top-channels">
+                    🗓️ Monthly Channel Trends
+                </button>
             </div>
 
             <div id="upload-tab" class="tab-content section-card" style="text-align: center;">
@@ -473,7 +494,7 @@
                 <div style="max-width: 600px; margin: 0 auto;">
                     <div class="upload-instructions">
                         <h3>How to get your YouTube history:</h3>
-                        <ol style="list-style: decimal; padding-left: 20px; margin: 0;">
+                        <ol>
                             <li>Go to <a href="https://takeout.google.com/" target="_blank">Google Takeout</a></li>
                             <li>Select "YouTube and YouTube Music"</li>
                             <li>Choose "history" and download as JSON format</li>
@@ -529,7 +550,7 @@
             <div id="channels-tab" class="tab-content" style="display: none;">
                 <div class="space-y-6">
                     <div class="section-card">
-                        <h2 class="section-title">Top Channels by Views</h2>
+                        <h2 class="section-title">Top Channels by Views (Overall)</h2>
                         <div class="chart-container" id="channels-chart"></div>
                     </div>
                     <div class="section-card">
@@ -538,6 +559,28 @@
                     </div>
                 </div>
             </div>
+
+            <div id="most-watched-tab" class="tab-content" style="display: none;">
+                <div class="section-card">
+                     <h2 class="section-title">Top 20 Most Watched Videos</h2>
+                     <div id="most-watched-list" class="space-y-6">
+                         <!-- Video items will be injected here -->
+                     </div>
+                </div>
+            </div>
+
+            <div id="monthly-top-channels-tab" class="tab-content" style="display: none;">
+                <div class="section-card">
+                     <h2 class="section-title">Monthly Viewing Trends with Top Channels</h2>
+                     <p class="text-sm text-gray-600 mb-6 -mt-4">
+                        This chart shows total views per month. Hover over any point to see the top 10 channels for that specific month.
+                     </p>
+                     <div class="chart-container" id="monthly-top-channels-chart">
+                         <!-- Timeseries chart will be injected here -->
+                     </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -558,85 +601,75 @@
 
         let BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList, Cell;
         let createRoot;
-        // React, ReactDOM, Recharts, PropTypes will be assigned from global scope in DOMContentLoaded
-
         const chartRoots = {};
         const chartFontFamily = "'Roboto', sans-serif";
 
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM fully loaded. Initializing application libraries...');
             try {
-                // Assign from global scope
-                if (typeof window.React === 'undefined') throw new Error("React global object is not defined.");
-                if (typeof window.ReactDOM === 'undefined') throw new Error("ReactDOM global object is not defined.");
-                if (typeof window.Recharts === 'undefined') throw new Error("Recharts global object is not defined.");
-                if (typeof window.PropTypes === 'undefined') console.warn("PropTypes global object is not defined, Recharts might bundle it or use React.PropTypes.");
-
-                React = window.React; // Make sure these are the window objects for React.createElement
-                ReactDOM = window.ReactDOM;
-                Recharts = window.Recharts;
-                // PropTypes is often used internally by Recharts or via React.PropTypes
-
+                React = window.React; ReactDOM = window.ReactDOM; Recharts = window.Recharts;
                 ({ BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList, Cell } = Recharts);
                 ({ createRoot } = ReactDOM);
                 
                 if (typeof BarChart === 'undefined' || typeof LineChart === 'undefined') {
-                    throw new Error("Recharts components (BarChart/LineChart) are undefined after destructuring. Library might not have fully initialized.");
+                    throw new Error("Recharts components (BarChart/LineChart) are undefined after destructuring.");
                 }
                 
-                console.log("All libraries loaded and components destructured successfully!");
-                
-                document.getElementById('json-upload').addEventListener('change', function(event) {
-                    const file = event.target.files[0];
-                    if (!file) return;
-                    
-                    document.getElementById('filename').textContent = `Selected: ${file.name}`;
-                    document.getElementById('filename').style.display = 'block';
-                    document.getElementById('processing').style.display = 'block';
-                    document.getElementById('file-label').textContent = 'Processing...';
-                    
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        try {
-                            const jsonData = JSON.parse(e.target.result);
-                            const processedData = processJsonData(jsonData);
-                            rawHistoryData = processedData.rawData;
-                            analysisData = analyzeData(processedData.rawData); 
-                            
-                            updateFilterCounts();
-                            document.getElementById('filter-controls').style.display = 'flex';
-                            
-                            updateUI();
-                            showTab('overview');
-                        } catch (error) {
-                            console.error('Error processing file:', error);
-                            alert('Error processing file. Please ensure it\'s a valid YouTube history JSON.\n' + error.message);
-                        } finally {
-                            document.getElementById('processing').style.display = 'none';
-                            document.getElementById('file-label').textContent = 'Choose JSON File';
-                        }
-                    };
-                    reader.readAsText(file);
-                });
-                
+                document.getElementById('json-upload').addEventListener('change', handleFileChange);
                 showTab('upload');
-                
             } catch (e) {
-                console.error("Failed to initialize application:", e);
-                alert("Critical Error: Required libraries failed to load or initialize. The application cannot run. Please check your internet connection, ensure no ad-blockers are interfering with CDNs, and refresh the page.\n\nDetails: " + e.message);
-                
-                document.querySelectorAll('.chart-container').forEach(container => {
-                    container.innerHTML = '<p style="color: #ef4444; text-align: center; padding: 20px;">Chart library failed to load. Please refresh the page.</p>';
-                });
-                const fileLabel = document.getElementById('file-label');
-                if (fileLabel) {
-                    fileLabel.textContent = 'Libraries Failed to Load';
-                    fileLabel.style.background = '#ef4444';
-                    fileLabel.style.cursor = 'not-allowed';
-                    document.getElementById('json-upload').disabled = true;
-                }
+                handleInitializationError(e);
             }
         });
+
+        function handleFileChange(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            document.getElementById('filename').textContent = `Selected: ${file.name}`;
+            document.getElementById('filename').style.display = 'block';
+            document.getElementById('processing').style.display = 'block';
+            document.getElementById('file-label').textContent = 'Processing...';
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const jsonData = JSON.parse(e.target.result);
+                    rawHistoryData = processJsonData(jsonData).rawData;
+                    analysisData = analyzeData(rawHistoryData); 
+                    
+                    updateFilterCounts();
+                    document.getElementById('filter-controls').style.display = 'flex';
+                    
+                    updateUI();
+                    showTab('overview');
+                } catch (error) {
+                    console.error('Error processing file:', error);
+                    alert('Error processing file. Please ensure it\'s a valid YouTube history JSON.\n' + error.message);
+                } finally {
+                    document.getElementById('processing').style.display = 'none';
+                    document.getElementById('file-label').textContent = 'Choose JSON File';
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function handleInitializationError(e) {
+            console.error("Failed to initialize application:", e);
+            alert("Critical Error: Required libraries failed to load or initialize. The application cannot run. Please check your internet connection, ensure no ad-blockers are interfering with CDNs, and refresh the page.\n\nDetails: " + e.message);
+            
+            document.querySelectorAll('.chart-container, #most-watched-list, #monthly-top-channels-chart').forEach(container => {
+                container.innerHTML = '<p style="color: #ef4444; text-align: center; padding: 20px;">Chart/Content library failed to load. Please refresh the page.</p>';
+            });
+            const fileLabel = document.getElementById('file-label');
+            if (fileLabel) {
+                fileLabel.textContent = 'Libraries Failed to Load';
+                fileLabel.style.background = '#ef4444';
+                fileLabel.style.cursor = 'not-allowed';
+                document.getElementById('json-upload').disabled = true;
+            }
+        }
+
 
         function showTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
@@ -652,12 +685,15 @@
             if (!currentFilters.youtube && !currentFilters.youtubeMusic) {
                 alert('Please select at least one filter option.'); return;
             }
+            if (!rawHistoryData) { alert('No data loaded yet.'); return; }
             const filteredData = rawHistoryData.filter(item => 
                 (currentFilters.youtube && item.source === 'YouTube') ||
                 (currentFilters.youtubeMusic && item.source === 'YouTube Music')
             );
             analysisData = analyzeData(filteredData);
             updateUI();
+            const activeTab = document.querySelector('.nav-btn-active').dataset.tab;
+            if (activeTab) showTab(activeTab); 
         }
 
         function updateFilterCounts() {
@@ -676,7 +712,7 @@
                 const time = new Date(item.time || '');
                 if (isNaN(time.getTime())) return null; 
                 return {
-                    title: (item.title || '').replace(/^(Watched|Viewed)\s+/, ''),
+                    title: (item.title || '').replace(/^(Watched|Viewed|Listened to)\s+/, ''),
                     time, hour: time.getHours(), dayOfWeek: time.getDay(),
                     month: `${time.getFullYear()}-${String(time.getMonth() + 1).padStart(2, '0')}`,
                     url: item.titleUrl || '',
@@ -689,7 +725,7 @@
         
         function analyzeData(rawData) {
             const total = rawData.length;
-            if (total === 0) return { total: 0, hourlyData: [], dailyData: [], monthlyData: [], topWords: [], channelData: [], uniqueChannels: 0, dateRange: {days:0}, avgPerDay: '0.0', sourceBreakdown: { youtube: 0, youtubeMusic: 0 } };
+            if (total === 0) return { total: 0, hourlyData: [], dailyData: [], monthlyData: [], topWords: [], channelData: [], uniqueChannels: 0, dateRange: {days:0}, avgPerDay: '0.0', sourceBreakdown: { youtube: 0, youtubeMusic: 0 }, mostWatchedData: [], topChannelsByMonthMap: new Map() };
 
             const timestamps = rawData.map(r => r.time.getTime());
             const oldestTime = Math.min(...timestamps);
@@ -702,8 +738,13 @@
             const hourlyData = Array(24).fill(0).map((_, h) => ({ hour: `${h}:00`, count: (groupBy(rawData, r => r.hour)[h] || []).length }));
             const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             const dailyData = dayNames.map((day, i) => ({ day, count: (groupBy(rawData, r => r.dayOfWeek)[i] || []).length }));
-            const monthlyData = Object.entries(groupBy(rawData, r => r.month))
-                .map(([month, v]) => ({ month, count: v.length })).sort((a,b) => a.month.localeCompare(b.month));
+            
+            // Monthly data for charts (total counts per month)
+            const monthlyActivity = groupBy(rawData, r => r.month);
+            const monthlyData = Object.entries(monthlyActivity)
+                .map(([month, v]) => ({ month, count: v.length }))
+                .sort((a,b) => a.month.localeCompare(b.month));
+
             const channelData = Object.entries(groupBy(rawData.filter(r=>r.channelName !== 'Unknown Channel'), r => r.channelName))
                 .map(([channel, v]) => ({ channel, count: v.length })).sort((a,b) => b.count - a.count);
             
@@ -714,11 +755,14 @@
             const topWords = Object.entries(wordCounts).sort(([,a],[,b]) => b-a).slice(0, 40)
                 .map(([word, count]) => ({ word: word.charAt(0).toUpperCase() + word.slice(1), count }));
 
+            const mostWatchedData = analyzeMostWatchedVideos(rawData, 20);
+            const topChannelsByMonthMap = analyzeTopChannelsByMonth(monthlyActivity, 10); // Pass grouped data
+
             return {
                 total, uniqueChannels: new Set(rawData.map(r => r.channelName)).size,
                 dateRange: { oldest: new Date(oldestTime), newest: new Date(newestTime), days: daysDiff },
                 avgPerDay: (total / daysDiff).toFixed(1),
-                hourlyData, dailyData, monthlyData, topWords, channelData,
+                hourlyData, dailyData, monthlyData, topWords, channelData, mostWatchedData, topChannelsByMonthMap,
                 sourceBreakdown: { 
                     youtube: rawData.filter(r => r.source === 'YouTube').length,
                     youtubeMusic: rawData.filter(r => r.source === 'YouTube Music').length
@@ -726,35 +770,212 @@
             };
         }
 
+        function analyzeMostWatchedVideos(rawData, topN = 20) {
+            if (!rawData || rawData.length === 0) return [];
+            const videoCounts = rawData.reduce((acc, item) => {
+                if (item.url && (item.url.includes('youtube.com/watch') || item.url.includes('youtu.be/'))) {
+                    if (!acc[item.url]) {
+                        acc[item.url] = { url: item.url, title: item.title, count: 0, source: item.source };
+                    }
+                    acc[item.url].count++;
+                }
+                return acc;
+            }, {});
+            return Object.values(videoCounts).sort((a, b) => b.count - a.count).slice(0, topN);
+        }
+
+        function analyzeTopChannelsByMonth(monthlyActivity, topN = 10) {
+            const topChannelsMap = new Map();
+            Object.entries(monthlyActivity).forEach(([month, monthItems]) => {
+                const channelCounts = monthItems
+                    .filter(item => item.channelName && item.channelName !== 'Unknown Channel')
+                    .reduce((acc, item) => {
+                        acc[item.channelName] = (acc[item.channelName] || 0) + 1;
+                        return acc;
+                    }, {});
+
+                const sortedChannels = Object.entries(channelCounts)
+                    .map(([channel, count]) => ({ channel, count }))
+                    .sort((a, b) => b.count - a.count);
+                
+                topChannelsMap.set(month, { topChannels: sortedChannels.slice(0, topN) });
+            });
+            return topChannelsMap;
+        }
+        
+        function extractYouTubeVideoId(url) {
+            if (!url) return null;
+            let videoId = null;
+            const patterns = [ /[?&]v=([^&]+)/, /embed\/([^?]+)/, /shorts\/([^?]+)/, /youtu\.be\/([^?]+)/ ];
+            for (const pattern of patterns) {
+                const match = url.match(pattern);
+                if (match && match[1]) { videoId = match[1]; break; }
+            }
+            if (videoId && videoId.includes('&')) { videoId = videoId.split('&')[0]; }
+            if (videoId && videoId.includes('#')) { videoId = videoId.split('#')[0]; }
+            return videoId;
+        }
+
+        function formatMonthYear(monthStr, format = 'long') { // e.g., "2023-01"
+            if (!monthStr || !monthStr.includes('-')) return monthStr;
+            const [year, monthNum] = monthStr.split('-');
+            const date = new Date(Number(year), Number(monthNum) - 1);
+            if (format === 'short') {
+                 return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }).replace(' ', "'");
+            }
+            return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        }
+
+
         function updateUI() {
             if (!analysisData) return;
             const { total, uniqueChannels, dateRange, avgPerDay, hourlyData, dailyData, monthlyData, topWords, channelData, sourceBreakdown } = analysisData;
             
             let filterText = (currentFilters.youtube && currentFilters.youtubeMusic) ? 'YouTube & Music' 
                            : currentFilters.youtube ? 'YouTube only' : 'YouTube Music only';
-            document.getElementById('subtitle').textContent = `Discovered ${total.toLocaleString()} views across ${uniqueChannels.toLocaleString()} channels (${filterText})`;
+            document.getElementById('subtitle').textContent = `Showing data for ${filterText}. Discovered ${total.toLocaleString()} views across ${uniqueChannels.toLocaleString()} channels.`;
 
             const statsContainer = document.getElementById('stats-cards');
             const peakHour = hourlyData.length > 0 ? hourlyData.reduce((max, curr) => curr.count > max.count ? curr : max, hourlyData[0]) : {hour:'N/A', count:0};
             const topChan = channelData.length > 0 ? channelData[0] : { channel: 'N/A', count: 0 };
             
             statsContainer.innerHTML = `
-                <div class="stat-card stat-card-pink"><div class="flex items-center mb-3"><span class="stat-icon">📹</span><h3 class="stat-title">Total Videos</h3></div><div class="stat-value">${total.toLocaleString()}</div><div class="stat-subtitle">Over ${dateRange.days || 0} days</div></div>
-                <div class="stat-card stat-card-peach"><div class="flex items-center mb-3"><span class="stat-icon">📅</span><h3 class="stat-title">Daily Average</h3></div><div class="stat-value">${avgPerDay}</div><div class="stat-subtitle">videos per day</div></div>
+                <div class="stat-card stat-card-pink"><div class="flex items-center mb-3"><span class="stat-icon">📹</span><h3 class="stat-title">Total Views</h3></div><div class="stat-value">${total.toLocaleString()}</div><div class="stat-subtitle">Over ${dateRange.days || 0} days</div></div>
+                <div class="stat-card stat-card-peach"><div class="flex items-center mb-3"><span class="stat-icon">📅</span><h3 class="stat-title">Daily Average</h3></div><div class="stat-value">${avgPerDay}</div><div class="stat-subtitle">views per day</div></div>
                 <div class="stat-card stat-card-mint"><div class="flex items-center mb-3"><span class="stat-icon">🎵</span><h3 class="stat-title">Source Split</h3></div><div class="stat-value" style="font-size: 22px; line-height: 1.4;">YT: ${sourceBreakdown.youtube.toLocaleString()}<br>Music: ${sourceBreakdown.youtubeMusic.toLocaleString()}</div><div class="stat-subtitle">${total > 0 ? `${Math.round((sourceBreakdown.youtube/total)*100)}% / ${Math.round((sourceBreakdown.youtubeMusic/total)*100)}%` : `0% / 0%`}</div></div>
-                <div class="stat-card stat-card-sky"><div class="flex items-center mb-3"><span class="stat-icon">📺</span><h3 class="stat-title">Top Channel</h3></div><div class="stat-value" style="font-size: 22px; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${topChan.channel}">${topChan.channel}</div><div class="stat-subtitle">${topChan.count.toLocaleString()} videos</div></div>
+                <div class="stat-card stat-card-sky"><div class="flex items-center mb-3"><span class="stat-icon">📺</span><h3 class="stat-title">Top Channel (Overall)</h3></div><div class="stat-value" style="font-size: 22px; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${topChan.channel}">${topChan.channel}</div><div class="stat-subtitle">${topChan.count.toLocaleString()} views</div></div>
             `;
             
-            updateChart('monthly-chart', monthlyData, 'month', 'count', "Monthly Views", "line", 0); 
+            updateChart('monthly-chart', monthlyData, 'month', 'count', "Monthly Views", "line", 0, true); 
             updateChart('hourly-chart', hourlyData, 'hour', 'count', "Views by Hour", "bar", 1);
             updateChart('daily-chart', dailyData, 'day', 'count', "Views by Day", "bar", 2);
             updateChart('words-chart', topWords.slice(0, 15), 'word', 'count', "Top Words", "bar", 3);
-            updateChart('channels-chart', channelData.slice(0, 15), 'channel', 'count', "Top Channels", "bar", 4);
+            updateChart('channels-chart', channelData.slice(0, 15), 'channel', 'count', "Top Channels (Overall)", "bar", 4); // Added (Overall) to tooltip name
             updateWordCloud();
             updateChannelList();
+            updateMostWatchedTab();
+            updateMonthlyTopChannelsChart(); 
         }
 
-        function updateChart(containerId, data, xKey, yKey, tooltipName = "Views", chartType = "bar", colorBaseIndex = 0) {
+        function updateMostWatchedTab() {
+            const container = document.getElementById('most-watched-list');
+            if (!container) return;
+
+            if (!analysisData || !analysisData.mostWatchedData || analysisData.mostWatchedData.length === 0) {
+                container.innerHTML = '<p class="text-center text-gray-500 py-8">No most watched video data available for the current filter.</p>';
+                return;
+            }
+            container.innerHTML = ''; 
+            analysisData.mostWatchedData.forEach((video, index) => {
+                const videoId = extractYouTubeVideoId(video.url);
+                if (!videoId) return; 
+                const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                const safeTitle = video.title.replace(/"/g, '"');
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'most-watched-video-item p-4 bg-white/90 backdrop-blur-md rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col md:flex-row gap-x-6 gap-y-4 items-start';
+                itemDiv.innerHTML = `
+                    <div class="rank text-3xl font-bold self-center md:self-start pt-1" style="color: var(--pastel-pink); min-width: 40px; text-align: center;">${index + 1}</div>
+                    <div class="preview w-full md:w-56 lg:w-64 xl:w-72 flex-shrink-0">
+                        <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+                            <iframe
+                                class="w-full h-full rounded-lg shadow-md"
+                                style="position: absolute; top:0; left:0; width:100%; height:100%;"
+                                src="${embedUrl}"
+                                title="YouTube video player: ${safeTitle}" 
+                                frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                allowfullscreen
+                                loading="lazy"
+                            ></iframe>
+                        </div>
+                    </div>
+                    <div class="info flex-grow">
+                        <h3 class="text-md sm:text-lg font-semibold text-gray-800 mb-1 leading-tight" style="max-height: 3.2em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;" title="${safeTitle}">${video.title}</h3>
+                        <p class="text-sm text-gray-600 mb-2"><strong>Watched:</strong> ${video.count.toLocaleString()} time${video.count > 1 ? 's' : ''}</p>
+                        <a href="${video.url}" target="_blank" rel="noopener noreferrer" class="text-sm font-medium transition-colors duration-200" style="color: var(--pastel-coral);" onmouseover="this.style.color='#E17055'" onmouseout="this.style.color='var(--pastel-coral)'">
+                            Watch on ${video.source === 'YouTube Music' ? 'YouTube Music' : 'YouTube'} →
+                        </a>
+                    </div>
+                `;
+                container.appendChild(itemDiv);
+            });
+        }
+
+        const MonthlyChannelsTooltip = ({ active, payload, label }) => {
+            if (active && payload && payload.length && label && analysisData && analysisData.topChannelsByMonthMap) {
+                const monthData = analysisData.topChannelsByMonthMap.get(label);
+                const totalViews = payload[0].value; 
+
+                return React.createElement('div', { className: 'recharts-default-tooltip', style: { minWidth: '250px' } },
+                    React.createElement('p', { className: 'recharts-tooltip-label' }, `${formatMonthYear(label)} - Total: ${totalViews.toLocaleString()} views`),
+                    React.createElement('ul', { className: 'recharts-tooltip-item-list monthly-channels-tooltip-list' },
+                        monthData && monthData.topChannels && monthData.topChannels.length > 0 ?
+                            monthData.topChannels.map((item, index) =>
+                                React.createElement('li', { key: index, className: 'recharts-tooltip-item' },
+                                    React.createElement('span', { className: 'recharts-tooltip-item-name', title: item.channel }, `${index + 1}. ${item.channel}`),
+                                    React.createElement('span', { className: 'recharts-tooltip-item-value' }, item.count.toLocaleString())
+                                )
+                            ) : React.createElement('li', { className: 'recharts-tooltip-item' }, 'No specific channel data for this month.')
+                    )
+                );
+            }
+            return null;
+        };
+        
+        function updateMonthlyTopChannelsChart() {
+            const containerId = 'monthly-top-channels-chart';
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            if (!analysisData || !analysisData.monthlyData || analysisData.monthlyData.length === 0) {
+                container.innerHTML = '<p class="text-center text-gray-500 py-8">No data for monthly channel trends.</p>';
+                 if (chartRoots[containerId]) { chartRoots[containerId].unmount(); delete chartRoots[containerId]; }
+                return;
+            }
+
+            if (!chartRoots[containerId]) chartRoots[containerId] = createRoot(container);
+            
+            const chartData = analysisData.monthlyData;
+
+            const chartElement = React.createElement(ResponsiveContainer, { width: "100%", height: 400 },
+                React.createElement(LineChart, { data: chartData, margin: { top: 20, right: 30, left: 10, bottom: 40 } },
+                    React.createElement(CartesianGrid, { strokeDasharray: "4 4", stroke: "rgba(0,0,0,0.08)", vertical: false }),
+                    React.createElement(XAxis, { 
+                        dataKey: "month", 
+                        tickFormatter: (tick) => formatMonthYear(tick, 'short'),
+                        interval: Math.max(0, Math.floor(chartData.length / 12) -1), 
+                        angle: -35, 
+                        textAnchor: 'end',
+                        height: 70, 
+                        dy: 5,
+                        tick: { fontSize: 11, fill: '#6b7280', fontFamily: chartFontFamily, fontWeight: 500 },
+                        axisLine: { stroke: 'rgba(0,0,0,0.1)' }, tickLine: { stroke: 'rgba(0,0,0,0.05)' }
+                    }),
+                    React.createElement(YAxis, {
+                        allowDecimals: false,
+                        tick: { fontSize: 11, fill: '#6b7280', fontFamily: chartFontFamily, fontWeight: 500 },
+                        axisLine: { stroke: 'rgba(0,0,0,0.1)' }, tickLine: { stroke: 'rgba(0,0,0,0.05)' },
+                        width: 60, 
+                        tickFormatter: (value) => value >= 1000 ? (value/1000).toFixed(value % 1000 !== 0 && value < 10000 ? 1 : 0) + 'k' : value.toLocaleString()
+                    }),
+                    React.createElement(Tooltip, { 
+                        content: React.createElement(MonthlyChannelsTooltip)
+                    }),
+                    React.createElement(Line, { 
+                        type: "monotone", 
+                        dataKey: "count", 
+                        name: "Total Views",
+                        stroke: pastelChartColors[5], 
+                        strokeWidth: 2.5,
+                        activeDot: { r: 7, strokeWidth: 2, fill: pastelChartColors[5], stroke: '#fff' },
+                        dot: { r: 4, strokeWidth: 1.5, fill: pastelChartColors[5], stroke: '#fff' }
+                    })
+                )
+            );
+            chartRoots[containerId].render(chartElement);
+        }
+
+        function updateChart(containerId, data, xKey, yKey, tooltipName = "Views", chartType = "bar", colorBaseIndex = 0, isGeneralMonthlyLine = false) {
             const container = document.getElementById(containerId);
             if (!container) { console.error(`Container ${containerId} not found.`); return; }
             
@@ -777,31 +998,25 @@
                 tick: { fontSize: 11, fill: '#6b7280', fontFamily: chartFontFamily, fontWeight: 500 },
                 axisLine: { stroke: 'rgba(0,0,0,0.1)' }, tickLine: { stroke: 'rgba(0,0,0,0.05)' }
             };
-            let chartMargin = { top: 20, right: 30, left: 5, bottom: 20 };
+            let chartMargin = { top: 20, right: 30, left: 10, bottom: 20 };
 
-            if (data.length > 10 && (xKey === 'channel' || xKey === 'word' || xKey === 'month')) {
+             if (isGeneralMonthlyLine && chartType === 'line' && data.length > 6) { 
                 xAxisConfig.angle = -35; xAxisConfig.textAnchor = 'end';
                 xAxisConfig.height = 70; xAxisConfig.dy = 5;
                 chartMargin.bottom = 40;
-                const tickLength = chartType === 'line' && xKey === 'month' ? 7 : 12;
-                xAxisConfig.tickFormatter = (tick) => String(tick).length > tickLength + 3 ? `${String(tick).substring(0,tickLength)}...` : String(tick);
+                xAxisConfig.interval = Math.max(0, Math.floor(data.length / 12) -1); 
+                xAxisConfig.tickFormatter = (tick) => formatMonthYear(tick, 'short');
+            } else if (data.length > 10 && (xKey === 'channel' || xKey === 'word')) { 
+                xAxisConfig.angle = -35; xAxisConfig.textAnchor = 'end';
+                xAxisConfig.height = 70; xAxisConfig.dy = 5;
+                chartMargin.bottom = 40;
+                const tickCharLimit = xKey === 'channel' ? 20 : 12; // Allow longer channel names
+                xAxisConfig.tickFormatter = (tick) => String(tick).length > tickCharLimit + 3 ? `${String(tick).substring(0, tickCharLimit)}...` : String(tick);
                 if (data.length > 18) xAxisConfig.tick.fontSize = 10;
-                
-                if (chartType === 'line' && xKey === 'month' && data.length > 12) {
-                    xAxisConfig.interval = Math.max(0, Math.floor(data.length / 12) -1); 
-                    xAxisConfig.tickFormatter = (tick) => { 
-                        const parts = String(tick).split('-');
-                        if (parts.length === 2) {
-                            // No React.useState here, just format the date string
-                            const date = new Date(Number(parts[0]), Number(parts[1]) - 1);
-                            return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }).replace(' ', "'");
-                        }
-                        return tick;
-                    };
-                }
             } else if (xKey === 'day') {
                 xAxisConfig.tick.fontSize = 12;
             }
+
 
             let chartSpecificElements;
             let ChartComponent = chartType === "line" ? LineChart : BarChart;
@@ -820,13 +1035,13 @@
 
             if (chartType === "line") {
                 chartSpecificElements = React.createElement(Line, {
-                    type: "monotone", dataKey: yKey,
+                    type: "monotone", dataKey: yKey, name: tooltipName,
                     stroke: pastelChartColors[colorBaseIndex % pastelChartColors.length], strokeWidth: 2.5,
-                    activeDot: { r: 7, strokeWidth: 2, fill: pastelChartColors[colorBaseIndex % pastelChartColors.length], stroke: '#fff',  boxShadow: '0 0 5px ' + pastelChartColors[colorBaseIndex % pastelChartColors.length] },
+                    activeDot: { r: 7, strokeWidth: 2, fill: pastelChartColors[colorBaseIndex % pastelChartColors.length], stroke: '#fff'},
                     dot: { r: 4, strokeWidth: 1.5, fill: pastelChartColors[colorBaseIndex % pastelChartColors.length], stroke: '#fff' }
                 });
             } else { 
-                chartSpecificElements = React.createElement(Bar, { dataKey: yKey, radius: [6, 6, 0, 0], minPointSize: 2 },
+                chartSpecificElements = React.createElement(Bar, { dataKey: yKey, name: tooltipName, radius: [6, 6, 0, 0], minPointSize: 2 },
                     data.map((entry, index) => 
                         React.createElement(Cell, { key: `cell-${index}`, fill: `url(#chartGradient${(colorBaseIndex + index) % pastelGradientColors.length})` })
                     )
@@ -845,12 +1060,15 @@
                         allowDecimals: false,
                         tick: { fontSize: 11, fill: '#6b7280', fontFamily: chartFontFamily, fontWeight: 500 },
                         axisLine: { stroke: 'rgba(0,0,0,0.1)' }, tickLine: { stroke: 'rgba(0,0,0,0.05)' },
-                        width: 55, 
+                        width: 60, 
                         tickFormatter: (value) => value >= 1000 ? (value/1000).toFixed(value % 1000 !== 0 && value < 10000 ? 1 : 0) + 'k' : value.toLocaleString()
                     }),
                     React.createElement(Tooltip, {
                         cursor: chartType === "line" ? { stroke: pastelChartColors[colorBaseIndex % pastelChartColors.length], strokeWidth: 1.5 } : { fill: 'rgba(0,0,0,0.03)' },
-                        formatter: (value) => [`${value.toLocaleString()}`, tooltipName],
+                        formatter: (value, nameFromPayload, props) => { 
+                             return [`${value.toLocaleString()}`, nameFromPayload];
+                        },
+                        labelFormatter: (label) => (isGeneralMonthlyLine && chartType === 'line') ? formatMonthYear(label) : label,
                     }),
                     chartSpecificElements
                 )
@@ -897,7 +1115,7 @@
             }
             container.innerHTML = analysisData.channelData.map(ch => `
                 <div class="channel-item">
-                    <div class="channel-name truncate" title="${ch.channel}">${ch.channel}</div>
+                    <div class="channel-name" title="${ch.channel}">${ch.channel}</div>
                     <div class="channel-count">${ch.count.toLocaleString()} videos</div>
                 </div>`).join('');
         }
