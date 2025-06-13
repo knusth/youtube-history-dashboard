@@ -5,277 +5,451 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YouTube History Analyzer</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts (from beautiful example) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Original working CDN setup -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/prop-types/prop-types.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.15.0/Recharts.min.js"></script>
+    
     <style>
+        /* All the beautiful CSS from your example */
         body { 
             margin: 0; 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-            background-color: #f9fafb;
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; /* Applied Roboto */
+            background: linear-gradient(135deg, #fef3f3 0%, #f3f4ff 50%, #f0fdf4 100%);
+            min-height: 100vh;
+            color: #4b5563; /* Default text color */
         }
+        
+        :root {
+            --pastel-pink: #FFB3C1;
+            --pastel-peach: #FFD9B7;
+            --pastel-yellow: #FFF3B2;
+            --pastel-mint: #B2F2BB;
+            --pastel-sky: #B2E1FF;
+            --pastel-lavender: #D0B2FF;
+            --pastel-coral: #FFCCD5;
+            --pastel-sage: #C9E4CA;
+            
+            --soft-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            --hover-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+        
         .file-input { display: none; }
         .file-label {
             display: inline-block;
-            padding: 12px 24px;
-            background: #3b82f6;
-            color: white;
-            border-radius: 8px;
+            padding: 14px 32px;
+            background: linear-gradient(135deg, var(--pastel-pink), var(--pastel-peach));
+            color: #5d3a3a;
+            border-radius: 50px;
             cursor: pointer;
-            font-weight: 500;
-            transition: background-color 0.2s;
-        }
-        .file-label:hover { background: #2563eb; }
-        
-        .chart-bar {
-            background: linear-gradient(to top, #3b82f6, #60a5fa);
-            border-radius: 4px 4px 0 0;
+            font-weight: 600;
             transition: all 0.3s ease;
-            position: relative;
-            cursor: pointer;
+            box-shadow: var(--soft-shadow);
         }
-        .chart-bar:hover {
-            transform: scaleY(1.05);
-            filter: brightness(1.1);
+        .file-label:hover { 
+            transform: translateY(-2px);
+            box-shadow: var(--hover-shadow);
         }
+        
         .chart-container {
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            gap: 4px;
-            height: 200px;
+            height: 350px; 
             padding: 20px;
-            border-radius: 8px;
-            background: #f8fafc;
-            overflow-x: auto;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.92); /* Slightly more opaque */
+            backdrop-filter: blur(12px); /* Increased blur */
+            box-shadow: var(--soft-shadow);
             min-width: 100%;
+            position: relative;
+            transition: all 0.3s ease;
         }
-        .chart-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-width: 30px;
-            max-width: 60px;
-            flex: 1;
+        
+        .chart-container:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--hover-shadow);
         }
-        .chart-label {
-            font-size: 10px;
-            margin-top: 8px;
-            text-align: center;
-            color: #6b7280;
-            word-break: break-all;
-            line-height: 1.2;
+        
+        .recharts-default-tooltip {
+            background: rgba(255, 255, 255, 0.97) !important; /* More opaque */
+            backdrop-filter: blur(8px) !important; /* Reduced blur for performance */
+            border: 1px solid rgba(0, 0, 0, 0.06) !important; /* Softer border */
+            border-radius: 12px !important;
+            padding: 12px 16px !important;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12) !important; /* Enhanced shadow */
+            font-family: 'Roboto', sans-serif;
         }
+        .recharts-tooltip-label {
+            color: #374151 !important;
+            font-weight: 600 !important;
+            margin-bottom: 8px !important;
+            font-size: 15px !important; /* Slightly larger */
+        }
+        .recharts-tooltip-item {
+            color: #52525b !important; /* Darker gray for items */
+            font-size: 13px !important;
+            padding: 4px 0 !important;
+        }
+         .recharts-tooltip-item-value {
+            font-weight: 600 !important;
+            color: #1f2937 !important; /* Even darker for value */
+            margin-left: 8px !important;
+        }
+
         .word-cloud {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 12px;
             justify-content: center;
             align-items: center;
             min-height: 200px;
-            padding: 20px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.8); /* Adjusted opacity */
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--soft-shadow);
         }
         .word-cloud span {
             display: inline-block;
-            margin: 2px;
-            padding: 4px 8px;
-            border-radius: 16px;
-            transition: transform 0.2s;
+            padding: 8px 16px;
+            border-radius: 50px;
+            transition: all 0.3s ease;
             cursor: pointer;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            font-weight: 500;
         }
         .word-cloud span:hover {
-            transform: scale(1.1);
+            transform: scale(1.15) translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
         }
+        
         .stat-card {
-            padding: 24px;
-            border-radius: 12px;
-            border: 1px solid;
+            padding: 28px;
+            border-radius: 20px;
+            border: none;
+            transition: all 0.3s ease;
+            box-shadow: var(--soft-shadow);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
         }
-        .stat-card-blue {
-            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-            border-color: #93c5fd;
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--hover-shadow);
         }
-        .stat-card-green {
-            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
-            border-color: #86efac;
+        
+        .stat-card::before { /* Shiny hover effect */
+            content: '';
+            position: absolute;
+            top: -60%; /* Adjusted for better effect */
+            left: -60%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0) 65%);
+            transform: rotate(45deg); /* Diagonal shimmer */
+            opacity: 0;
+            transition: opacity 0.5s ease, transform 0.5s ease;
         }
-        .stat-card-purple {
-            background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
-            border-color: #c4b5fd;
+        
+        .stat-card:hover::before {
+            opacity: 1;
+            transform: rotate(15deg) scale(1.1); /* Subtle animation */
         }
-        .stat-card-orange {
-            background: linear-gradient(135deg, #fed7aa, #fdba74);
-            border-color: #fb923c;
-        }
+        
+        .stat-card-pink { background: linear-gradient(135deg, #ffe0e6, #ffc4d0); }
+        .stat-card-peach { background: linear-gradient(135deg, #ffedd5, #fed7aa); }
+        .stat-card-mint { background: linear-gradient(135deg, #dcfce7, #bbf7d0); }
+        .stat-card-sky { background: linear-gradient(135deg, #dbeafe, #bfdbfe); }
+        
         .stat-icon {
-            width: 24px;
-            height: 24px;
+            width: 36px;
+            height: 36px;
             font-size: 20px;
-            display: inline-block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.75);
+            padding: 8px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
+        
         .stat-title {
             font-weight: 600;
-            color: #374151;
-            margin-left: 12px;
+            color: #4b5563;
+            margin-left: 16px;
+            font-size: 16px;
         }
+        
         .stat-value {
-            font-size: 32px;
+            font-size: 36px;
             font-weight: 700;
-            margin: 8px 0;
+            margin: 12px 0;
+            background: linear-gradient(135deg, #ec4899, #f97316); 
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text; 
+            color: #ec4899; 
         }
-        .stat-value-blue { color: #1d4ed8; }
-        .stat-value-green { color: #059669; }
-        .stat-value-purple { color: #7c3aed; }
-        .stat-value-orange { color: #ea580c; }
+        
         .stat-subtitle {
             font-size: 14px;
             color: #6b7280;
+            opacity: 0.8;
         }
+        
         .section-card {
-            background: white;
-            padding: 24px;
-            border-radius: 12px;
-            border: 1px solid #e5e7eb;
+            background: rgba(255, 255, 255, 0.9); /* More opaque for readability */
+            backdrop-filter: blur(12px);
+            padding: 32px;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.6); 
             margin-bottom: 24px;
+            box-shadow: var(--soft-shadow);
+            transition: all 0.3s ease;
         }
+        
         .section-title {
-            font-size: 20px;
+            font-size: 24px;
             font-weight: 700;
-            margin-bottom: 16px;
-            color: #111827;
+            margin-bottom: 24px; /* Increased margin */
+            background: linear-gradient(135deg, #ec4899, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: #ec4899; 
         }
+        
         .nav-container {
             display: flex;
-            gap: 8px;
-            margin-bottom: 24px;
-            background: #f3f4f6;
-            padding: 4px;
-            border-radius: 8px;
+            gap: 10px; /* Increased gap */
+            margin-bottom: 32px;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(10px);
+            padding: 10px; /* Increased padding */
+            border-radius: 16px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06); /* Softer shadow */
         }
+        
         .nav-btn {
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 12px 16px;
-            border-radius: 6px;
-            transition: all 0.2s;
+            padding: 12px 20px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
             cursor: pointer;
             border: none;
-            background: none;
+            background: transparent; /* Explicitly transparent */
             font-size: 14px;
             font-weight: 500;
-        }
-        .nav-btn-active {
-            background: white;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            color: #2563eb;
-        }
-        .nav-btn-inactive {
             color: #6b7280;
         }
+        
+        .nav-btn-active {
+            background: linear-gradient(135deg, var(--pastel-pink), var(--pastel-peach));
+            color: #5d3a3a; 
+            font-weight: 600;
+            box-shadow: 0 3px 12px rgba(255, 179, 193, 0.45); /* Enhanced shadow */
+        }
+        
         .nav-btn-inactive:hover {
+            background: rgba(255, 255, 255, 0.9); /* Lighter hover */
             color: #374151;
         }
+        
         .container {
             max-width: 1280px;
             margin: 0 auto;
-            padding: 24px;
+            padding: 32px 24px;
         }
+        
         .grid-4 {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 24px;
-            margin-bottom: 24px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+            gap: 28px; /* Increased gap */
+            margin-bottom: 32px;
         }
-        .space-y-6 > * + * {
-            margin-top: 24px;
-        }
+        
         .processing-spinner {
-            width: 24px;
-            height: 24px;
-            border: 2px solid #3b82f6;
-            border-top: 2px solid transparent;
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--pastel-pink);
+            border-top: 3px solid transparent;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 8px;
+            animation: spin 0.8s linear infinite; /* Faster spin */
+            margin: 0 auto 16px;
         }
+        
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        
         .upload-instructions {
-            background: #dbeafe;
-            padding: 16px;
-            border-radius: 8px;
-            border: 1px solid #93c5fd;
+            background: linear-gradient(135deg, #fef6f6, #f6f6ff); /* Subtler gradient */
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 179, 193, 0.25); /* Softer border */
             text-align: left;
-            margin-bottom: 16px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
+        
         .upload-instructions h3 {
             font-weight: 600;
-            color: #1e40af;
-            margin-bottom: 8px;
+            background: linear-gradient(135deg, #dd2572, #f97316); /* Adjusted gradient */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: #dd2572; 
+            margin-bottom: 12px;
         }
+        
         .upload-instructions ol {
-            color: #1d4ed8;
+            color: #52525b;
             font-size: 14px;
-            line-height: 1.5;
+            line-height: 1.8;
         }
+        
         .upload-instructions a {
+            color: #dd2572;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        
+        .upload-instructions a:hover {
+            color: #f97316;
             text-decoration: underline;
         }
+        
         .channel-list {
-            max-height: 300px;
+            max-height: 400px;
             overflow-y: auto;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            background: white;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.7); /* More opaque */
+            backdrop-filter: blur(10px);
+            padding: 12px; /* Added padding around list items */
         }
+        
         .channel-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 16px;
-            border-bottom: 1px solid #f3f4f6;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.9); 
+            transition: all 0.25s ease;
         }
-        .channel-item:last-child {
-            border-bottom: none;
+        
+        .channel-item:hover {
+            background: linear-gradient(135deg, #fef8f8, #f8f8ff); /* Very subtle hover */
+            transform: translateX(5px) scale(1.01); /* Enhanced hover */
+            box-shadow: 0 3px 10px rgba(0,0,0,0.07);
         }
+        
         .channel-name {
             font-weight: 500;
             color: #374151;
         }
+        
         .channel-count {
-            color: #6b7280;
+            color: #ec4899;
             font-size: 14px;
+            font-weight: 600;
         }
+        
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.2); /* More transparent track */
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--pastel-pink), var(--pastel-peach));
+            border-radius: 10px;
+            border: 2px solid transparent; /* Creates padding around thumb */
+            background-clip: padding-box;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #ff9ab0, #ffc49e); /* Slightly darker hover */
+        }
+        
+        #filter-controls {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 179, 193, 0.15); /* Even softer border */
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        #filter-controls button {
+            background: linear-gradient(135deg, var(--pastel-sky), var(--pastel-mint));
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(178, 225, 255, 0.4);
+            color: #1e3a8a;
+        }
+        
+        #filter-controls button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(178, 225, 255, 0.6);
+        }
+        
+        input[type="checkbox"] {
+            accent-color: var(--pastel-pink);
+            width: 18px; /* Slightly larger */
+            height: 18px;
+            border-radius: 5px; 
+            border: 1.5px solid var(--pastel-coral); /* Thicker border */
+            cursor: pointer;
+            vertical-align: middle; /* Align better with text */
+        }
+        /* Style for the checkmark itself if needed, though accent-color handles most of it */
+        input[type="checkbox"]:checked {
+            background-color: var(--pastel-pink); /* Ensure bg color when checked */
+        }
+
     </style>
 </head>
 <body>
     <div id="root">
         <div class="container">
-            <div style="margin-bottom: 32px;">
-                <h1 style="font-size: 30px; font-weight: 700; color: #111827; margin-bottom: 8px;">YouTube Watch History Analysis</h1>
-                <p style="color: #6b7280; font-size: 16px;" id="subtitle">Upload your YouTube history JSON to get started</p>
+            <div style="margin-bottom: 40px; text-align: center;">
+                <h1 style="font-size: 42px; font-weight: 800; margin-bottom: 12px; background: linear-gradient(135deg, #ec4899, #8b5cf6, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: #ec4899;">YouTube Watch History Analysis</h1>
+                <p style="color: #6b7280; font-size: 18px;" id="subtitle">Upload your YouTube history JSON to discover your viewing patterns</p>
                 
-                <!-- Filter Controls -->
-                <div id="filter-controls" style="display: none; margin-top: 16px; padding: 16px; background: #f8fafc; border-radius: 8px; border: 1px solid #e5e7eb;">
-                    <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                <div id="filter-controls" style="display: none; margin-top: 24px; padding: 20px;">
+                    <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap; justify-content: center;">
                         <span style="font-weight: 600; color: #374151;">Filter by:</span>
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <input type="checkbox" id="filter-youtube" checked style="accent-color: #3b82f6;">
-                            <span style="color: #374151;">YouTube Videos</span>
-                            <span id="youtube-count" style="color: #6b7280; font-size: 14px;">(0)</span>
+                            <input type="checkbox" id="filter-youtube" checked>
+                            <span style="color: #374151; font-weight: 500;">YouTube Videos</span>
+                            <span id="youtube-count" style="color: #ec4899; font-size: 14px; font-weight: 600;">(0)</span>
                         </label>
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <input type="checkbox" id="filter-youtube-music" checked style="accent-color: #3b82f6;">
-                            <span style="color: #374151;">YouTube Music</span>
-                            <span id="youtube-music-count" style="color: #6b7280; font-size: 14px;">(0)</span>
+                            <input type="checkbox" id="filter-youtube-music" checked>
+                            <span style="color: #374151; font-weight: 500;">YouTube Music</span>
+                            <span id="youtube-music-count" style="color: #8b5cf6; font-size: 14px; font-weight: 600;">(0)</span>
                         </label>
-                        <button onclick="applyFilters()" style="padding: 8px 16px; background: #3b82f6; color: white; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 500;">
+                        <button onclick="applyFilters()" style="padding: 10px 24px; border: none; border-radius: 12px; font-size: 14px; cursor: pointer; font-weight: 600;">
                             Apply Filters
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Navigation -->
             <div class="nav-container" id="navigation">
                 <button onclick="showTab('upload')" class="nav-btn nav-btn-active" data-tab="upload">
                     📁 Upload File
@@ -294,7 +468,6 @@
                 </button>
             </div>
 
-            <!-- Upload Tab -->
             <div id="upload-tab" class="tab-content section-card" style="text-align: center;">
                 <h2 class="section-title">Upload Your YouTube History</h2>
                 <div style="max-width: 600px; margin: 0 auto;">
@@ -309,40 +482,30 @@
                     </div>
                     <input type="file" accept=".json" class="file-input" id="json-upload">
                     <label for="json-upload" class="file-label" id="file-label">Choose JSON File</label>
-                    <p style="font-size: 14px; color: #6b7280; margin-top: 8px;" id="filename"></p>
-                    <div id="processing" style="display: none; margin-top: 16px; padding: 16px; background: #f9fafb; border-radius: 8px;">
+                    <p style="font-size: 14px; color: #6b7280; margin-top: 12px;" id="filename"></p>
+                    <div id="processing" style="display: none; margin-top: 24px; padding: 24px; background: rgba(255, 255, 255, 0.8); border-radius: 16px; backdrop-filter: blur(10px);">
                         <div class="processing-spinner"></div>
-                        <p style="margin: 0; color: #6b7280;">Processing your YouTube history...</p>
+                        <p style="margin: 0; color: #6b7280; font-weight: 500;">Processing your YouTube history...</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Overview Tab -->
             <div id="overview-tab" class="tab-content" style="display: none;">
                 <div class="space-y-6">
-                    <!-- Stats Cards -->
-                    <div class="grid-4" id="stats-cards">
-                        <!-- Cards will be populated by JavaScript -->
-                    </div>
-                    
-                    <!-- Monthly Trend -->
+                    <div class="grid-4" id="stats-cards"></div>
                     <div class="section-card">
                         <h2 class="section-title">Monthly Activity Trend</h2>
-                        <div class="chart-container" id="monthly-chart">
-                            <!-- Chart will be populated by JavaScript -->
-                        </div>
+                        <div class="chart-container" id="monthly-chart"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Time Patterns Tab -->
             <div id="time-tab" class="tab-content" style="display: none;">
                 <div class="space-y-6">
                     <div class="section-card">
                         <h2 class="section-title">Viewing Activity by Hour</h2>
                         <div class="chart-container" id="hourly-chart"></div>
                     </div>
-                    
                     <div class="section-card">
                         <h2 class="section-title">Viewing Activity by Day of Week</h2>
                         <div class="chart-container" id="daily-chart"></div>
@@ -350,36 +513,28 @@
                 </div>
             </div>
 
-            <!-- Content Analysis Tab -->
             <div id="content-tab" class="tab-content" style="display: none;">
                 <div class="space-y-6">
                     <div class="section-card">
                         <h2 class="section-title">Most Common Words in Video Titles</h2>
                         <div class="chart-container" id="words-chart"></div>
                     </div>
-                    
                     <div class="section-card">
                         <h2 class="section-title">Word Cloud</h2>
-                        <div class="word-cloud" id="word-cloud">
-                            <!-- Word cloud will be populated by JavaScript -->
-                        </div>
+                        <div class="word-cloud" id="word-cloud"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Channels Tab -->
             <div id="channels-tab" class="tab-content" style="display: none;">
                 <div class="space-y-6">
                     <div class="section-card">
                         <h2 class="section-title">Top Channels by Views</h2>
                         <div class="chart-container" id="channels-chart"></div>
                     </div>
-                    
                     <div class="section-card">
                         <h2 class="section-title">All Channels</h2>
-                        <div class="channel-list" id="channel-list">
-                            <!-- Channel list will be populated by JavaScript -->
-                        </div>
+                        <div class="channel-list" id="channel-list"></div>
                     </div>
                 </div>
             </div>
@@ -393,264 +548,178 @@
             youtube: true,
             youtubeMusic: true
         };
-        const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#84cc16', '#f97316'];
+        
+        const pastelChartColors = ['#FFB3C1', '#FFD9B7', '#FFF3B2', '#B2F2BB', '#B2E1FF', '#D0B2FF', '#FFCCD5', '#C9E4CA'];
+        const pastelGradientColors = [ 
+            ['#FFB3C1', '#FF99AC'], ['#FFD9B7', '#FFC8A2'], ['#FFF3B2', '#FFEC9A'], 
+            ['#B2F2BB', '#A0E8AE'], ['#B2E1FF', '#A0D5FF'], ['#D0B2FF', '#C2A0FF'], 
+            ['#FFCCD5', '#FFAEC0'], ['#C9E4CA', '#B8D8BA']
+        ];
+
+        let BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList, Cell;
+        let createRoot;
+        // React, ReactDOM, Recharts, PropTypes will be assigned from global scope in DOMContentLoaded
+
+        const chartRoots = {};
+        const chartFontFamily = "'Roboto', sans-serif";
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM fully loaded. Initializing application libraries...');
+            try {
+                // Assign from global scope
+                if (typeof window.React === 'undefined') throw new Error("React global object is not defined.");
+                if (typeof window.ReactDOM === 'undefined') throw new Error("ReactDOM global object is not defined.");
+                if (typeof window.Recharts === 'undefined') throw new Error("Recharts global object is not defined.");
+                if (typeof window.PropTypes === 'undefined') console.warn("PropTypes global object is not defined, Recharts might bundle it or use React.PropTypes.");
+
+                React = window.React; // Make sure these are the window objects for React.createElement
+                ReactDOM = window.ReactDOM;
+                Recharts = window.Recharts;
+                // PropTypes is often used internally by Recharts or via React.PropTypes
+
+                ({ BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList, Cell } = Recharts);
+                ({ createRoot } = ReactDOM);
+                
+                if (typeof BarChart === 'undefined' || typeof LineChart === 'undefined') {
+                    throw new Error("Recharts components (BarChart/LineChart) are undefined after destructuring. Library might not have fully initialized.");
+                }
+                
+                console.log("All libraries loaded and components destructured successfully!");
+                
+                document.getElementById('json-upload').addEventListener('change', function(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    
+                    document.getElementById('filename').textContent = `Selected: ${file.name}`;
+                    document.getElementById('filename').style.display = 'block';
+                    document.getElementById('processing').style.display = 'block';
+                    document.getElementById('file-label').textContent = 'Processing...';
+                    
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const jsonData = JSON.parse(e.target.result);
+                            const processedData = processJsonData(jsonData);
+                            rawHistoryData = processedData.rawData;
+                            analysisData = analyzeData(processedData.rawData); 
+                            
+                            updateFilterCounts();
+                            document.getElementById('filter-controls').style.display = 'flex';
+                            
+                            updateUI();
+                            showTab('overview');
+                        } catch (error) {
+                            console.error('Error processing file:', error);
+                            alert('Error processing file. Please ensure it\'s a valid YouTube history JSON.\n' + error.message);
+                        } finally {
+                            document.getElementById('processing').style.display = 'none';
+                            document.getElementById('file-label').textContent = 'Choose JSON File';
+                        }
+                    };
+                    reader.readAsText(file);
+                });
+                
+                showTab('upload');
+                
+            } catch (e) {
+                console.error("Failed to initialize application:", e);
+                alert("Critical Error: Required libraries failed to load or initialize. The application cannot run. Please check your internet connection, ensure no ad-blockers are interfering with CDNs, and refresh the page.\n\nDetails: " + e.message);
+                
+                document.querySelectorAll('.chart-container').forEach(container => {
+                    container.innerHTML = '<p style="color: #ef4444; text-align: center; padding: 20px;">Chart library failed to load. Please refresh the page.</p>';
+                });
+                const fileLabel = document.getElementById('file-label');
+                if (fileLabel) {
+                    fileLabel.textContent = 'Libraries Failed to Load';
+                    fileLabel.style.background = '#ef4444';
+                    fileLabel.style.cursor = 'not-allowed';
+                    document.getElementById('json-upload').disabled = true;
+                }
+            }
+        });
 
         function showTab(tabName) {
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.style.display = 'none';
-            });
-            
-            // Remove active class from all nav buttons
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.className = 'nav-btn nav-btn-inactive';
-            });
-            
-            // Show selected tab
+            document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.className = 'nav-btn nav-btn-inactive');
             document.getElementById(tabName + '-tab').style.display = 'block';
-            
-            // Add active class to selected nav button
-            document.querySelector(`[data-tab="${tabName}"]`).className = 'nav-btn nav-btn-active';
+            const activeBtn = document.querySelector(`[data-tab="${tabName}"]`);
+            if (activeBtn) activeBtn.className = 'nav-btn nav-btn-active';
         }
 
         function applyFilters() {
             currentFilters.youtube = document.getElementById('filter-youtube').checked;
             currentFilters.youtubeMusic = document.getElementById('filter-youtube-music').checked;
-            
             if (!currentFilters.youtube && !currentFilters.youtubeMusic) {
-                alert('Please select at least one filter option.');
-                return;
+                alert('Please select at least one filter option.'); return;
             }
-            
-            // Filter the raw data and re-analyze
-            const filteredData = rawHistoryData.filter(item => {
-                if (currentFilters.youtube && item.source === 'YouTube') return true;
-                if (currentFilters.youtubeMusic && item.source === 'YouTube Music') return true;
-                return false;
-            });
-            
+            const filteredData = rawHistoryData.filter(item => 
+                (currentFilters.youtube && item.source === 'YouTube') ||
+                (currentFilters.youtubeMusic && item.source === 'YouTube Music')
+            );
             analysisData = analyzeData(filteredData);
             updateUI();
         }
 
-        // File upload handling
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('json-upload').addEventListener('change', function(event) {
-                const file = event.target.files[0];
-                if (!file) return;
-                
-                document.getElementById('filename').textContent = `Selected: ${file.name}`;
-                document.getElementById('filename').style.display = 'block';
-                document.getElementById('processing').style.display = 'block';
-                document.getElementById('file-label').textContent = 'Processing...';
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        const jsonContent = e.target.result;
-                        const jsonData = JSON.parse(jsonContent);
-                        const processedData = processJsonData(jsonData);
-                        rawHistoryData = processedData.rawData;
-                        analysisData = processedData.analysisData;
-                        
-                        // Update filter counts
-                        updateFilterCounts();
-                        
-                        // Show filter controls
-                        document.getElementById('filter-controls').style.display = 'block';
-                        
-                        updateUI();
-                        showTab('overview');
-                    } catch (error) {
-                        console.error('Error processing file:', error);
-                        alert('Error processing file. Please make sure it\'s a valid YouTube history JSON.');
-                    } finally {
-                        document.getElementById('processing').style.display = 'none';
-                        document.getElementById('file-label').textContent = 'Choose JSON File';
-                    }
-                };
-                reader.readAsText(file);
-            });
-            
-            // Initialize the UI
-            showTab('upload');
-        });
-
         function updateFilterCounts() {
-            const youtubeCounts = rawHistoryData.filter(item => item.source === 'YouTube').length;
-            const youtubeMusicCounts = rawHistoryData.filter(item => item.source === 'YouTube Music').length;
-            
-            document.getElementById('youtube-count').textContent = `(${youtubeCounts.toLocaleString()})`;
-            document.getElementById('youtube-music-count').textContent = `(${youtubeMusicCounts.toLocaleString()})`;
+            if (!rawHistoryData) return;
+            const ytCount = rawHistoryData.filter(item => item.source === 'YouTube').length;
+            const musicCount = rawHistoryData.filter(item => item.source === 'YouTube Music').length;
+            document.getElementById('youtube-count').textContent = `(${ytCount.toLocaleString()})`;
+            document.getElementById('youtube-music-count').textContent = `(${musicCount.toLocaleString()})`;
         }
 
         function processJsonData(jsonData) {
-            // Handle both array format and object with array property
             let historyItems = Array.isArray(jsonData) ? jsonData : (jsonData.history || jsonData);
+            if (!Array.isArray(historyItems)) throw new Error('Invalid JSON: expected array of history items');
             
-            if (!Array.isArray(historyItems)) {
-                throw new Error('Invalid JSON format - expected array of history items');
-            }
-
-            const parsedData = [];
-            
-            historyItems.forEach(item => {
-                // Handle the specific JSON structure from YouTube takeout
-                const title = item.title || '';
-                const timeStr = item.time || '';
-                const url = item.titleUrl || '';
-                const channelName = item.subtitles?.[0]?.name || 'Unknown Channel';
-                const header = item.header || 'YouTube'; // Default to YouTube if no header
-                
-                if (!title || !timeStr) return;
-                
-                // Parse the time - should be ISO format
-                const time = new Date(timeStr);
-                if (isNaN(time.getTime())) return;
-                
-                // Clean up title - remove "Watched " prefix if present
-                let cleanTitle = title.replace(/^(Watched|Viewed)\s+/, '');
-                
-                // Extract video ID from URL if available
-                let videoId = '';
-                if (url) {
-                    const match = url.match(/[?&]v=([^&]+)/);
-                    videoId = match ? match[1] : '';
-                }
-                
-                // Determine source based on header
-                const source = header === 'YouTube Music' ? 'YouTube Music' : 'YouTube';
-                
-                parsedData.push({
-                    title: cleanTitle,
-                    time,
-                    hour: time.getHours(),
-                    dayOfWeek: time.getDay(),
+            const rawData = historyItems.map(item => {
+                const time = new Date(item.time || '');
+                if (isNaN(time.getTime())) return null; 
+                return {
+                    title: (item.title || '').replace(/^(Watched|Viewed)\s+/, ''),
+                    time, hour: time.getHours(), dayOfWeek: time.getDay(),
                     month: `${time.getFullYear()}-${String(time.getMonth() + 1).padStart(2, '0')}`,
-                    date: time.toDateString(),
-                    url,
-                    videoId,
-                    channelName,
-                    source,
-                    originalHeader: header
-                });
-            });
-            
-            return {
-                rawData: parsedData,
-                analysisData: analyzeData(parsedData)
-            };
+                    url: item.titleUrl || '',
+                    channelName: item.subtitles?.[0]?.name || 'Unknown Channel',
+                    source: (item.header || 'YouTube') === 'YouTube Music' ? 'YouTube Music' : 'YouTube'
+                };
+            }).filter(Boolean);
+            return { rawData };
         }
-
+        
         function analyzeData(rawData) {
             const total = rawData.length;
-            if (total === 0) return null;
+            if (total === 0) return { total: 0, hourlyData: [], dailyData: [], monthlyData: [], topWords: [], channelData: [], uniqueChannels: 0, dateRange: {days:0}, avgPerDay: '0.0', sourceBreakdown: { youtube: 0, youtubeMusic: 0 } };
 
             const timestamps = rawData.map(r => r.time.getTime());
             const oldestTime = Math.min(...timestamps);
             const newestTime = Math.max(...timestamps);
             const daysDiff = Math.max(1, Math.ceil((newestTime - oldestTime) / (1000 * 60 * 60 * 24)));
+            const groupBy = (array, keyFn) => array.reduce((groups, item) => {
+                const key = keyFn(item); (groups[key] = groups[key] || []).push(item); return groups;
+            }, {});
 
-            const groupBy = (array, keyFn) => {
-                return array.reduce((groups, item) => {
-                    const key = keyFn(item);
-                    if (!groups[key]) groups[key] = [];
-                    groups[key].push(item);
-                    return groups;
-                }, {});
-            };
-
-            // Hourly analysis
-            const hourlyGroups = groupBy(rawData, r => r.hour);
-            const hourlyData = Array(24).fill(0).map((_, hour) => ({
-                hour: `${hour}:00`,
-                count: hourlyGroups[hour]?.length || 0
-            }));
-
-            // Daily analysis
-            const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-            const dailyGroups = groupBy(rawData, r => r.dayOfWeek);
-            const dailyData = Array(7).fill(0).map((_, day) => ({
-                day: dayNames[day],
-                count: dailyGroups[day]?.length || 0
-            }));
-
-            // Monthly analysis
-            const monthlyGroups = groupBy(rawData, r => r.month);
-            const monthlyData = Object.entries(monthlyGroups)
-                .map(([month, videos]) => ({
-                    month,
-                    count: videos.length
-                }))
-                .sort((a, b) => a.month.localeCompare(b.month));
-
-            // Channel analysis
-            const channelGroups = groupBy(rawData.filter(r => r.channelName !== 'Unknown Channel'), r => r.channelName);
-            const channelData = Object.entries(channelGroups)
-                .map(([channel, videos]) => ({
-                    channel,
-                    count: videos.length
-                }))
-                .sort((a, b) => b.count - a.count);
-
-            // Count unique channels
-            const uniqueChannels = new Set(rawData.map(r => r.channelName)).size;
-
-            // Word analysis
-            const cleanTitles = rawData
-                .map(r => {
-                    let title = r.title;
-                    title = title.replace(/https?:\/\/[^\s]+/g, '');
-                    title = title.replace(/www\.[^\s]+/g, '');
-                    title = title.replace(/\b(youtube|watch|video)\b/gi, '');
-                    return title;
-                })
-                .filter(title => title.trim().length > 0);
-
-            const allWords = cleanTitles
-                .flatMap(title => title.toLowerCase().replace(/[^\w\s]/g, ' ').split(/\s+/))
-                .filter(word => word.length > 2);
-
-            const stopWords = new Set([
-                'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had', 'her', 'was', 'one', 'our', 'out',
-                'day', 'get', 'has', 'him', 'his', 'how', 'man', 'new', 'now', 'old', 'see', 'two', 'way', 'who', 'with',
-                'this', 'that', 'will', 'from', 'they', 'know', 'want', 'been', 'good', 'much', 'some', 'time', 'very',
-                'when', 'come', 'here', 'just', 'like', 'long', 'make', 'many', 'over', 'such', 'take', 'than', 'them',
-                'well', 'were', 'what', 'your', 'have', 'there', 'would', 'could', 'should', 'about', 'after', 'again',
-                'www', 'com', 'org', 'net', 'https', 'http', 'youtube', 'watch', 'video', 'viewed', 'official',
-                'part', 'episode', 'vol', 'live', 'full', 'hd', 'ft', 'feat'
-            ]);
-
-            const wordCounts = {};
-            allWords.forEach(word => {
-                if (!stopWords.has(word) && /^[a-zA-Z]+$/.test(word) && word.length > 2) {
-                    wordCounts[word] = (wordCounts[word] || 0) + 1;
-                }
-            });
-
-            const topWords = Object.entries(wordCounts)
-                .sort(([,a], [,b]) => b - a)
-                .slice(0, 30)
-                .map(([word, count]) => ({
-                    word: word.charAt(0).toUpperCase() + word.slice(1),
-                    count
-                }));
+            const hourlyData = Array(24).fill(0).map((_, h) => ({ hour: `${h}:00`, count: (groupBy(rawData, r => r.hour)[h] || []).length }));
+            const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const dailyData = dayNames.map((day, i) => ({ day, count: (groupBy(rawData, r => r.dayOfWeek)[i] || []).length }));
+            const monthlyData = Object.entries(groupBy(rawData, r => r.month))
+                .map(([month, v]) => ({ month, count: v.length })).sort((a,b) => a.month.localeCompare(b.month));
+            const channelData = Object.entries(groupBy(rawData.filter(r=>r.channelName !== 'Unknown Channel'), r => r.channelName))
+                .map(([channel, v]) => ({ channel, count: v.length })).sort((a,b) => b.count - a.count);
+            
+            const stopWords = new Set(['the','and','for','are','but','not','you','all','can','had','her','was','one','our','out','day','get','has','him','his','how','man','new','now','old','see','two','way','who','with','this','that','will','from','they','know','want','been','good','much','some','time','very','when','come','here','just','like','long','make','many','over','such','take','than','them','well','were','what','your','have','there','would','could','should','about','after','again','www','com','org','net','https','http','youtube','watch','video','viewed','official','part','episode','vol','live','full','hd','ft','feat','music','lyric','lyrics', 'audio']);
+            const wordCounts = rawData.flatMap(r => r.title.toLowerCase().replace(/[^\w\s'-]/g, ' ').split(/\s+/))
+                .filter(w => w.length > 2 && !stopWords.has(w) && /^[a-zA-Z'-]+$/.test(w))
+                .reduce((acc, w) => { acc[w] = (acc[w] || 0) + 1; return acc; }, {});
+            const topWords = Object.entries(wordCounts).sort(([,a],[,b]) => b-a).slice(0, 40)
+                .map(([word, count]) => ({ word: word.charAt(0).toUpperCase() + word.slice(1), count }));
 
             return {
-                total,
-                uniqueChannels,
-                dateRange: {
-                    oldest: new Date(oldestTime),
-                    newest: new Date(newestTime),
-                    days: daysDiff
-                },
+                total, uniqueChannels: new Set(rawData.map(r => r.channelName)).size,
+                dateRange: { oldest: new Date(oldestTime), newest: new Date(newestTime), days: daysDiff },
                 avgPerDay: (total / daysDiff).toFixed(1),
-                hourlyData,
-                dailyData,
-                monthlyData,
-                topWords,
-                channelData,
-                sourceBreakdown: {
+                hourlyData, dailyData, monthlyData, topWords, channelData,
+                sourceBreakdown: { 
                     youtube: rawData.filter(r => r.source === 'YouTube').length,
                     youtubeMusic: rawData.filter(r => r.source === 'YouTube Music').length
                 }
@@ -659,156 +728,178 @@
 
         function updateUI() {
             if (!analysisData) return;
-
-            // Update subtitle with filter information
-            let filterText = '';
-            if (currentFilters.youtube && currentFilters.youtubeMusic) {
-                filterText = 'YouTube & YouTube Music';
-            } else if (currentFilters.youtube) {
-                filterText = 'YouTube only';
-            } else if (currentFilters.youtubeMusic) {
-                filterText = 'YouTube Music only';
-            }
+            const { total, uniqueChannels, dateRange, avgPerDay, hourlyData, dailyData, monthlyData, topWords, channelData, sourceBreakdown } = analysisData;
             
-            document.getElementById('subtitle').textContent = 
-                `Insights from your ${analysisData.total.toLocaleString()} watched videos across ${analysisData.uniqueChannels} channels (${filterText})`;
+            let filterText = (currentFilters.youtube && currentFilters.youtubeMusic) ? 'YouTube & Music' 
+                           : currentFilters.youtube ? 'YouTube only' : 'YouTube Music only';
+            document.getElementById('subtitle').textContent = `Discovered ${total.toLocaleString()} views across ${uniqueChannels.toLocaleString()} channels (${filterText})`;
 
-            // Update stats cards
             const statsContainer = document.getElementById('stats-cards');
-            const peakHour = analysisData.hourlyData.reduce((max, curr) => curr.count > max.count ? curr : max);
-            const mostActiveDay = analysisData.dailyData.reduce((max, curr) => curr.count > max.count ? curr : max);
-            const topChannel = analysisData.channelData[0] || { channel: 'N/A', count: 0 };
-            
-            // Create source breakdown card
-            const sourceCard = analysisData.sourceBreakdown ? `
-                <div class="stat-card stat-card-purple">
-                    <div style="display: flex; align-items: center; margin-bottom: 8px;">
-                        <span class="stat-icon">🎵</span>
-                        <h3 class="stat-title">Source Split</h3>
-                    </div>
-                    <div class="stat-value stat-value-purple" style="font-size: 16px; line-height: 1.3;">
-                        YouTube: ${analysisData.sourceBreakdown.youtube.toLocaleString()}<br>
-                        Music: ${analysisData.sourceBreakdown.youtubeMusic.toLocaleString()}
-                    </div>
-                    <div class="stat-subtitle">${Math.round((analysisData.sourceBreakdown.youtube / analysisData.total) * 100)}% / ${Math.round((analysisData.sourceBreakdown.youtubeMusic / analysisData.total) * 100)}%</div>
-                </div>
-            ` : `
-                <div class="stat-card stat-card-purple">
-                    <div style="display: flex; align-items: center; margin-bottom: 8px;">
-                        <span class="stat-icon">🕐</span>
-                        <h3 class="stat-title">Peak Hour</h3>
-                    </div>
-                    <div class="stat-value stat-value-purple">${peakHour.hour}</div>
-                    <div class="stat-subtitle">${peakHour.count} videos</div>
-                </div>
-            `;
+            const peakHour = hourlyData.length > 0 ? hourlyData.reduce((max, curr) => curr.count > max.count ? curr : max, hourlyData[0]) : {hour:'N/A', count:0};
+            const topChan = channelData.length > 0 ? channelData[0] : { channel: 'N/A', count: 0 };
             
             statsContainer.innerHTML = `
-                <div class="stat-card stat-card-blue">
-                    <div style="display: flex; align-items: center; margin-bottom: 8px;">
-                        <span class="stat-icon">📹</span>
-                        <h3 class="stat-title">Total Videos</h3>
-                    </div>
-                    <div class="stat-value stat-value-blue">${analysisData.total.toLocaleString()}</div>
-                    <div class="stat-subtitle">Over ${analysisData.dateRange.days} days</div>
-                </div>
-                <div class="stat-card stat-card-green">
-                    <div style="display: flex; align-items: center; margin-bottom: 8px;">
-                        <span class="stat-icon">📅</span>
-                        <h3 class="stat-title">Average Per Day</h3>
-                    </div>
-                    <div class="stat-value stat-value-green">${analysisData.avgPerDay}</div>
-                    <div class="stat-subtitle">videos daily</div>
-                </div>
-                ${sourceCard}
-                <div class="stat-card stat-card-orange">
-                    <div style="display: flex; align-items: center; margin-bottom: 8px;">
-                        <span class="stat-icon">📺</span>
-                        <h3 class="stat-title">Top Channel</h3>
-                    </div>
-                    <div class="stat-value stat-value-orange" style="font-size: 18px; line-height: 1.2;">${topChannel.channel}</div>
-                    <div class="stat-subtitle">${topChannel.count} videos</div>
-                </div>
+                <div class="stat-card stat-card-pink"><div class="flex items-center mb-3"><span class="stat-icon">📹</span><h3 class="stat-title">Total Videos</h3></div><div class="stat-value">${total.toLocaleString()}</div><div class="stat-subtitle">Over ${dateRange.days || 0} days</div></div>
+                <div class="stat-card stat-card-peach"><div class="flex items-center mb-3"><span class="stat-icon">📅</span><h3 class="stat-title">Daily Average</h3></div><div class="stat-value">${avgPerDay}</div><div class="stat-subtitle">videos per day</div></div>
+                <div class="stat-card stat-card-mint"><div class="flex items-center mb-3"><span class="stat-icon">🎵</span><h3 class="stat-title">Source Split</h3></div><div class="stat-value" style="font-size: 22px; line-height: 1.4;">YT: ${sourceBreakdown.youtube.toLocaleString()}<br>Music: ${sourceBreakdown.youtubeMusic.toLocaleString()}</div><div class="stat-subtitle">${total > 0 ? `${Math.round((sourceBreakdown.youtube/total)*100)}% / ${Math.round((sourceBreakdown.youtubeMusic/total)*100)}%` : `0% / 0%`}</div></div>
+                <div class="stat-card stat-card-sky"><div class="flex items-center mb-3"><span class="stat-icon">📺</span><h3 class="stat-title">Top Channel</h3></div><div class="stat-value" style="font-size: 22px; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${topChan.channel}">${topChan.channel}</div><div class="stat-subtitle">${topChan.count.toLocaleString()} videos</div></div>
             `;
-
-            // Update charts
-            updateChart('monthly-chart', analysisData.monthlyData, 'month', 'count');
-            updateChart('hourly-chart', analysisData.hourlyData, 'hour', 'count');
-            updateChart('daily-chart', analysisData.dailyData, 'day', 'count');
-            updateChart('words-chart', analysisData.topWords.slice(0, 15), 'word', 'count');
-            updateChart('channels-chart', analysisData.channelData.slice(0, 15), 'channel', 'count');
+            
+            updateChart('monthly-chart', monthlyData, 'month', 'count', "Monthly Views", "line", 0); 
+            updateChart('hourly-chart', hourlyData, 'hour', 'count', "Views by Hour", "bar", 1);
+            updateChart('daily-chart', dailyData, 'day', 'count', "Views by Day", "bar", 2);
+            updateChart('words-chart', topWords.slice(0, 15), 'word', 'count', "Top Words", "bar", 3);
+            updateChart('channels-chart', channelData.slice(0, 15), 'channel', 'count', "Top Channels", "bar", 4);
             updateWordCloud();
             updateChannelList();
         }
 
-        function updateChart(containerId, data, xKey, yKey) {
+        function updateChart(containerId, data, xKey, yKey, tooltipName = "Views", chartType = "bar", colorBaseIndex = 0) {
             const container = document.getElementById(containerId);
-            if (!data || data.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #6b7280;">No data available</p>';
-                return;
+            if (!container) { console.error(`Container ${containerId} not found.`); return; }
+            
+            if (typeof createRoot !== 'function' || 
+                (chartType === "bar" && typeof BarChart === 'undefined') ||
+                (chartType === "line" && typeof LineChart === 'undefined')) {
+                container.innerHTML = '<p style="color: #ef4444; text-align: center; padding: 20px;">Chart library component not loaded.</p>'; return;
             }
 
-            const maxValue = Math.max(...data.map(d => d[yKey]));
+            if (!data || data.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 20px;">No data available for this chart.</p>';
+                if (chartRoots[containerId]) { chartRoots[containerId].unmount(); delete chartRoots[containerId]; }
+                return;
+            }
+            if (!chartRoots[containerId]) chartRoots[containerId] = createRoot(container);
             
-            container.innerHTML = data.map((item, index) => {
-                const height = Math.max(2, (item[yKey] / maxValue) * 160);
-                const color = colors[index % colors.length];
+            const chartHeight = 350;
+            let xAxisConfig = {
+                dataKey: xKey, interval: 'preserveStartEnd', angle: 0, textAnchor: 'middle', dy: 10, height: 40,
+                tick: { fontSize: 11, fill: '#6b7280', fontFamily: chartFontFamily, fontWeight: 500 },
+                axisLine: { stroke: 'rgba(0,0,0,0.1)' }, tickLine: { stroke: 'rgba(0,0,0,0.05)' }
+            };
+            let chartMargin = { top: 20, right: 30, left: 5, bottom: 20 };
+
+            if (data.length > 10 && (xKey === 'channel' || xKey === 'word' || xKey === 'month')) {
+                xAxisConfig.angle = -35; xAxisConfig.textAnchor = 'end';
+                xAxisConfig.height = 70; xAxisConfig.dy = 5;
+                chartMargin.bottom = 40;
+                const tickLength = chartType === 'line' && xKey === 'month' ? 7 : 12;
+                xAxisConfig.tickFormatter = (tick) => String(tick).length > tickLength + 3 ? `${String(tick).substring(0,tickLength)}...` : String(tick);
+                if (data.length > 18) xAxisConfig.tick.fontSize = 10;
                 
-                return `
-                    <div class="chart-item">
-                        <div class="chart-bar" 
-                             style="height: ${height}px; background: ${color}; width: 100%;"
-                             title="${item[xKey]}: ${item[yKey]}">
-                        </div>
-                        <div class="chart-label">
-                            ${item[xKey].length > 15 ? item[xKey].substring(0, 12) + '...' : item[xKey]}
-                        </div>
-                    </div>
-                `;
-            }).join('');
+                if (chartType === 'line' && xKey === 'month' && data.length > 12) {
+                    xAxisConfig.interval = Math.max(0, Math.floor(data.length / 12) -1); 
+                    xAxisConfig.tickFormatter = (tick) => { 
+                        const parts = String(tick).split('-');
+                        if (parts.length === 2) {
+                            // No React.useState here, just format the date string
+                            const date = new Date(Number(parts[0]), Number(parts[1]) - 1);
+                            return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }).replace(' ', "'");
+                        }
+                        return tick;
+                    };
+                }
+            } else if (xKey === 'day') {
+                xAxisConfig.tick.fontSize = 12;
+            }
+
+            let chartSpecificElements;
+            let ChartComponent = chartType === "line" ? LineChart : BarChart;
+
+            const gradientDefs = chartType === "bar" ? pastelGradientColors.map((colors, idx) => 
+                React.createElement('linearGradient', { 
+                    key: `chartGradient${idx}`, 
+                    id: `chartGradient${idx}`, 
+                    x1: "0%", y1: "0%", x2: "0%", y2: "100%" 
+                },
+                    React.createElement('stop', { offset: "0%", stopColor: colors[0], stopOpacity: 0.9 }),
+                    React.createElement('stop', { offset: "100%", stopColor: colors[1], stopOpacity: 0.7 })
+                )
+            ) : null;
+
+
+            if (chartType === "line") {
+                chartSpecificElements = React.createElement(Line, {
+                    type: "monotone", dataKey: yKey,
+                    stroke: pastelChartColors[colorBaseIndex % pastelChartColors.length], strokeWidth: 2.5,
+                    activeDot: { r: 7, strokeWidth: 2, fill: pastelChartColors[colorBaseIndex % pastelChartColors.length], stroke: '#fff',  boxShadow: '0 0 5px ' + pastelChartColors[colorBaseIndex % pastelChartColors.length] },
+                    dot: { r: 4, strokeWidth: 1.5, fill: pastelChartColors[colorBaseIndex % pastelChartColors.length], stroke: '#fff' }
+                });
+            } else { 
+                chartSpecificElements = React.createElement(Bar, { dataKey: yKey, radius: [6, 6, 0, 0], minPointSize: 2 },
+                    data.map((entry, index) => 
+                        React.createElement(Cell, { key: `cell-${index}`, fill: `url(#chartGradient${(colorBaseIndex + index) % pastelGradientColors.length})` })
+                    )
+                );
+            }
+            
+            const chartElement = React.createElement(ResponsiveContainer, { width: "100%", height: chartHeight },
+                React.createElement(ChartComponent, { 
+                        data: data, margin: chartMargin, 
+                        ...(chartType === "bar" && { barGap: 4, barCategoryGap: '25%' }) 
+                    },
+                    gradientDefs ? React.createElement('defs', null, ...gradientDefs) : null,
+                    React.createElement(CartesianGrid, { strokeDasharray: "4 4", stroke: "rgba(0,0,0,0.08)", vertical: false }),
+                    React.createElement(XAxis, xAxisConfig),
+                    React.createElement(YAxis, {
+                        allowDecimals: false,
+                        tick: { fontSize: 11, fill: '#6b7280', fontFamily: chartFontFamily, fontWeight: 500 },
+                        axisLine: { stroke: 'rgba(0,0,0,0.1)' }, tickLine: { stroke: 'rgba(0,0,0,0.05)' },
+                        width: 55, 
+                        tickFormatter: (value) => value >= 1000 ? (value/1000).toFixed(value % 1000 !== 0 && value < 10000 ? 1 : 0) + 'k' : value.toLocaleString()
+                    }),
+                    React.createElement(Tooltip, {
+                        cursor: chartType === "line" ? { stroke: pastelChartColors[colorBaseIndex % pastelChartColors.length], strokeWidth: 1.5 } : { fill: 'rgba(0,0,0,0.03)' },
+                        formatter: (value) => [`${value.toLocaleString()}`, tooltipName],
+                    }),
+                    chartSpecificElements
+                )
+            );
+            chartRoots[containerId].render(chartElement);
         }
 
         function updateWordCloud() {
             const container = document.getElementById('word-cloud');
-            if (!analysisData.topWords || analysisData.topWords.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #6b7280;">No word data available</p>';
-                return;
+            if (!analysisData || !analysisData.topWords || analysisData.topWords.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #6b7280;">No word data available</p>'; return;
             }
-
-            const maxCount = Math.max(...analysisData.topWords.map(w => w.count));
-            
-            container.innerHTML = analysisData.topWords.slice(0, 30).map((wordData, index) => {
-                const minSize = 12;
-                const maxSize = 36;
+            const maxCount = Math.max(...analysisData.topWords.map(w => w.count), 1);
+            container.innerHTML = analysisData.topWords.map((wordData, index) => { 
+                const minSize = 14; const maxSize = 38; 
                 const fontSize = minSize + (wordData.count / maxCount) * (maxSize - minSize);
-                const opacity = 0.6 + (wordData.count / maxCount) * 0.4;
-                const color = colors[index % colors.length];
+                const opacity = 0.8 + (wordData.count / maxCount) * 0.2; 
+                const color = pastelChartColors[index % pastelChartColors.length];
+                const [r, g, b] = hexToRgb(color);
+                const desaturatedBg = `rgba(${r}, ${g}, ${b}, 0.15)`; 
                 
-                return `
-                    <span style="font-size: ${fontSize}px; 
-                                 color: ${color}; 
-                                 opacity: ${opacity};
-                                 font-weight: ${fontSize > 24 ? 'bold' : 'normal'};"
-                          title="${wordData.word}: ${wordData.count} times">
-                        ${wordData.word}
-                    </span>
-                `;
+                return `<span style="font-size: ${fontSize.toFixed(1)}px; color: ${color}; opacity: ${opacity.toFixed(2)}; font-weight: ${fontSize > 26 ? '600' : '500'}; background-color: ${desaturatedBg}; border: 1px solid ${color}33;" title="${wordData.word}: ${wordData.count.toLocaleString()} times">${wordData.word}</span>`;
             }).join('');
+        }
+
+        function hexToRgb(hex) { 
+            let r = 0, g = 0, b = 0;
+            if (hex.length == 4) { 
+                r = parseInt(hex[1] + hex[1], 16);
+                g = parseInt(hex[2] + hex[2], 16);
+                b = parseInt(hex[3] + hex[3], 16);
+            } else if (hex.length == 7) { 
+                r = parseInt(hex.substring(1, 3), 16);
+                g = parseInt(hex.substring(3, 5), 16);
+                b = parseInt(hex.substring(5, 7), 16);
+            }
+            return [r, g, b];
         }
 
         function updateChannelList() {
             const container = document.getElementById('channel-list');
-            if (!analysisData.channelData || analysisData.channelData.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 20px;">No channel data available</p>';
-                return;
+            if (!analysisData || !analysisData.channelData || analysisData.channelData.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 20px;">No channel data available</p>'; return;
             }
-
-            container.innerHTML = analysisData.channelData.map(channelData => `
+            container.innerHTML = analysisData.channelData.map(ch => `
                 <div class="channel-item">
-                    <div class="channel-name">${channelData.channel}</div>
-                    <div class="channel-count">${channelData.count} videos</div>
-                </div>
-            `).join('');
+                    <div class="channel-name truncate" title="${ch.channel}">${ch.channel}</div>
+                    <div class="channel-count">${ch.count.toLocaleString()} videos</div>
+                </div>`).join('');
         }
     </script>
 </body>
